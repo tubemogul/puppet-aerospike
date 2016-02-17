@@ -1,0 +1,43 @@
+{
+  "name": "TubeMogul-aerospike",
+  "version": "1.0.0",
+  "author": "TubeMogul Inc.",
+  "summary": "Aerospike servers management via Puppet",
+  "license": "Apache 2.0",
+  "source": "git@github.com:tubemogul/puppet-aerospike.git",
+  "project_page": "https://github.com/tubemogul/puppet-aerospike",
+  "issues_url": "https://github.com/tubemogul/puppet-aerospike/issues",
+  "tags": ["aerospike", "database", "nosql"],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease":
+      [
+        "12.0.4","14.04"
+      ]
+    },
+    {
+      "operatingsystem": "Debian",
+      "operatingsystemrelease":
+      [
+        "6","8"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "puppetlabs-stdlib",
+      "version_requirement": ">= 1.0.0"
+    },
+    {
+      "name": "puppet/archive",
+      "version_requirement": ">= 0.0.1 < 1.0.0"
+    }
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": ">= 3.0.0 < 5.0.0"
+    }
+  ]
+}

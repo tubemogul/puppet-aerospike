@@ -1,0 +1,106 @@
+# Aerospike database configuration file.
+
+# service context definition
+service {
+  user <%= scope.lookupvar('aerospike::system_user') %>
+  group <%= scope.lookupvar('aerospike::system_group') %>
+<% scope.lookupvar('aerospike::config_service').sort.each do |k,v| -%>
+  <%= k %> <%= v %>
+<% end -%>
+}
+
+# logging context definition
+logging {
+<% scope.lookupvar('aerospike::config_logging').sort.each do |k,v| -%>
+  file <%= k %> {
+<% v.sort.each do |item| -%>
+    context <%= item %>
+<% end -%>
+  }
+<% end -%>
+}
+
+# network context definition
+network {
+  service {
+<% scope.lookupvar('aerospike::config_net_svc').sort.each do |k,v| -%>
+  <%= k %> <%= v %>
+<% end -%>
+  }
+
+  fabric {
+<% scope.lookupvar('aerospike::config_net_fab').sort.each do |k,v| -%>
+  <%= k %> <%= v %>
+<% end -%>
+  }
+
+  info {
+<% scope.lookupvar('aerospike::config_net_inf').sort.each do |k,v| -%>
+  <%= k %> <%= v %>
+<% end -%>
+  }
+
+  heartbeat {
+<% scope.lookupvar('aerospike::config_net_hb').sort.each do |k,v| -%>
+  <%= k %> <%= v %>
+<% end -%>
+  }
+}
+
+<% unless scope.lookupvar('aerospike::config_cluster').empty? -%>
+cluster {
+<% scope.lookupvar('aerospike::config_cluster').sort.each do |k,v| -%>
+  <%= k %> <%= v %>
+<% end -%>
+}
+<% end -%>
+
+<% scope.lookupvar('aerospike::config_ns').sort.each do |ns,cfg| -%>
+# namespace context: <%= ns %>
+namespace <%= ns %> {
+<%  cfg.sort.each do |item_k,item_v|
+      if item_v.is_a?(Array) -%>
+  <%= item_k %> {
+<%       item_v.sort.each do |prop| -%>
+    <%= prop %>
+<%       end -%>
+  }
+<%     else -%>
+  <%= item_k %> <%= item_v %>
+<%     end
+    end -%>
+}
+<% end -%>
+
+<% unless scope.lookupvar('aerospike::config_sec').empty? -%>
+security {
+<% scope.lookupvar('aerospike::config_sec').sort.each do |item_k,item_v|
+      if item_v.is_a?(Array) -%>
+  <%= item_k %> {
+<%       item_v.sort.each do |prop| -%>
+    <%= prop %>
+<%       end -%>
+  }
+<%     else -%>
+  <%= item_k %> <%= item_v %>
+<%     end
+    end -%>
+}
+<% end -%>
+
+<% unless scope.lookupvar('aerospike::config_xdr').empty? -%>
+xdr {
+<% scope.lookupvar('aerospike::config_xdr').sort.each do |item_k,item_v|
+      if item_v.is_a?(Array) -%>
+  <%= item_k %> {
+<%       item_v.sort.each do |prop| -%>
+    <%= prop %>
+<%       end -%>
+  }
+<%     else -%>
+  <%= item_k %> <%= item_v %>
+<%     end
+    end -%>
+}
+<% end -%>
+
