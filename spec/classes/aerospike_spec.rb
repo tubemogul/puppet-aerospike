@@ -226,7 +226,7 @@ describe 'aerospike' do
             .with_content(/^\s*scan-thread 6$/)\
             .with_content(/^\s*transaction-queues 2$/)\
             .with_content(/^\s*transaction-threads-per-queue 4$/)\
-            .with_content(/^\s*proto-fd-max 20000$/)
+            .with_content(/^\s*proto-fd-max 20000$/)\
             .with_content(/^\s*file \/var\/log\/aerospike\/aerospike.log {$/)\
             .with_content(/^\s*context any info$/)\
             .with_content(/^\s*file \/var\/log\/aerospike\/aerospike.debug {$/)\
