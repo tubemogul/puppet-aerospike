@@ -356,6 +356,7 @@ network {
   }
 
   heartbeat {
+  address any
   interval 150
   mode multicast
   port 9918

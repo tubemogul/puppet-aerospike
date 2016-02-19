@@ -294,6 +294,7 @@ class aerospike (
   },
   $config_net_hb  = {
     'mode'     => 'multicast',
+    'address'  => 'any',
     'port'     => 9918,
     'interval' => 150,
     'timeout'  => 10,

@@ -24,25 +24,25 @@ logging {
 network {
   service {
 <% scope.lookupvar('aerospike::config_net_svc').sort.each do |k,v| -%>
-  <%= k %> <%= v %>
+    <%= k %> <%= v %>
 <% end -%>
   }
 
   fabric {
 <% scope.lookupvar('aerospike::config_net_fab').sort.each do |k,v| -%>
-  <%= k %> <%= v %>
+    <%= k %> <%= v %>
 <% end -%>
   }
 
   info {
 <% scope.lookupvar('aerospike::config_net_inf').sort.each do |k,v| -%>
-  <%= k %> <%= v %>
+    <%= k %> <%= v %>
 <% end -%>
   }
 
   heartbeat {
 <% scope.lookupvar('aerospike::config_net_hb').sort.each do |k,v| -%>
-  <%= k %> <%= v %>
+    <%= k %> <%= v %>
 <% end -%>
   }
 }
