@@ -226,7 +226,7 @@ describe 'aerospike' do
             .with_content(/^\s*scan-thread 6$/)\
             .with_content(/^\s*transaction-queues 2$/)\
             .with_content(/^\s*transaction-threads-per-queue 4$/)\
-            .with_content(/^\s*proto-fd-max 20000$/)
+            .with_content(/^\s*proto-fd-max 20000$/)\
             .with_content(/^\s*file \/var\/log\/aerospike\/aerospike.log {$/)\
             .with_content(/^\s*context any info$/)\
             .with_content(/^\s*file \/var\/log\/aerospike\/aerospike.debug {$/)\
@@ -353,8 +353,7 @@ describe 'aerospike' do
           is_expected.to contain_package('aerospike-amc')\
             .with_ensure('3.6.5')\
             .with_provider('dpkg')\
-            .with_source('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb')\
-            .with_require('Archive[/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb]')
+            .with_source('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb')
         end
 
 				# Tests related to the aerospike::config class
