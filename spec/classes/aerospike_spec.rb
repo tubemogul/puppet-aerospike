@@ -328,15 +328,17 @@ describe 'aerospike' do
 				}}
 
 				# Tests related to the aerospike::install class
-        it { is_expected.to contain_package('build-essential').with_ensure('installed') }
-        it { is_expected.to contain_package('python-dev').with_ensure('installed') }
-        it { is_expected.to contain_package('python-pip').with_ensure('installed') }
+        it { is_expected.to contain_package('python-pip').with_ensure('installed').that_comes_before('Package[bcrypt]') }
         it { is_expected.to contain_package('ansible').with_ensure('installed') }
 
         it { is_expected.to contain_package('markupsafe').with_ensure('installed').with_provider('pip') }
         it { is_expected.to contain_package('paramiko').with_ensure('installed').with_provider('pip') }
         it { is_expected.to contain_package('ecdsa').with_ensure('installed').with_provider('pip') }
         it { is_expected.to contain_package('pycrypto').with_ensure('installed').with_provider('pip') }
+
+        it { is_expected.to contain_package('build-essential').with_ensure('installed').that_comes_before('Package[bcrypt]') }
+        it { is_expected.to contain_package('python-dev').with_ensure('installed').that_comes_before('Package[bcrypt]') }
+        it { is_expected.to contain_package('libffi-dev').with_ensure('installed').that_comes_before('Package[bcrypt]') }
         it { is_expected.to contain_package('bcrypt').with_ensure('installed').with_provider('pip') }
 
         it do
