@@ -351,7 +351,7 @@ describe 'aerospike' do
 
 				it do
           is_expected.to contain_package('aerospike-amc')\
-            .with_ensure('3.6.5')\
+            .with_ensure('installed')\
             .with_provider('dpkg')\
             .with_source('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb')
         end
