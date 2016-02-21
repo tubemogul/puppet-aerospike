@@ -123,7 +123,7 @@ class aerospike::install {
 
     # For now only the packages that are not tarballs are installed.
     if $amc_pkg_provider != undef {
-      ensure_packages('aerospike-amc', {
+      ensure_packages("aerospike-amc-${aerospike::edition}", {
         ensure   => installed,
         provider => $amc_pkg_provider,
         source   => $amc_dest,
