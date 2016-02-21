@@ -40,22 +40,20 @@ class aerospike::install {
   # #######################################
   # Defining the system user and group the service will be configured on
   # #######################################
-  if ! defined(User[$aerospike::system_user]) {
-    user { $aerospike::system_user:
+  ensure_resource( 'user', $aerospike::system_user, {
       ensure  => present,
       uid     => $aerospike::system_uid,
       gid     => $aerospike::system_group,
       shell   => '/bin/bash',
       require => Group[$aerospike::system_group],
     }
-  }
+  )
 
-  if ! defined(Group[$aerospike::system_group]) {
-    group { $aerospike::system_group:
+  ensure_resource('group', $aerospike::system_group, {
       ensure => present,
       gid    => $aerospike::system_gid,
     }
-  }
+  )
 
   # #######################################
   # Installation of the management console
@@ -96,13 +94,11 @@ class aerospike::install {
 
     $os_packages  = ['build-essential','python-dev','python-pip','ansible']
     $pip_packages = ['markupsafe','paramiko','ecdsa','pycrypto','bcrypt']
-    package { $os_packages:
-      ensure => installed,
-    } ->
-    package { $pip_packages:
+    ensure_packages($os_packages, { ensure => installed, } )
+    ensure_packages($pip_packages, {
       ensure   => installed,
       provider => 'pip',
-    } ->
+    })
     archive { $amc_target_archive:
       ensure       => present,
       source       => $amc_src,
@@ -117,12 +113,12 @@ class aerospike::install {
 
     # For now only the packages that are not tarballs are installed.
     if $amc_pkg_provider != undef {
-      package { 'aerospike-amc':
+      ensure_packages('aerospike-amc', {
         ensure   => $aerospike::amc_version,
         provider => $amc_pkg_provider,
         source   => $amc_dest,
         require  => [ Archive[$amc_target_archive], ],
-      }
+      })
     } else {
       fail("Installation of the amc via tarball not yet supported by this module.")
     }
