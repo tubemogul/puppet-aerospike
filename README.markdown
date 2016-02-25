@@ -32,9 +32,11 @@ It can optionally install the Aerospike Management Console (aka. amc) and manage
 
 It has been tested and used in production with:
 
- * Puppet 3.8 on Ubuntu 14.04 (trusty)
+ * Puppet 3.8 on Ubuntu 14.04 (trusty) with aerospike 3.7.2 and 3.7.3 community
+   and enterprise versions with and without the installation of the amc 3.6.6.
+   The master branch of puppet-archive was used including the PR 117 and 121.
 
-The spec tests pass against puppet >= 3.5 including the future parser.
+The spec tests pass against puppet >= 3.5 including the strict variables and future parser.
 
 ## Module Description
 
@@ -44,7 +46,7 @@ What is this module capable of doing?
  * Optionally download and install the Aerospike Management Console in a specific version
  * Manage a specific user and group (with their corresponding fixed uid/gid) dedicated to the service
  * Manage all the contexts configurable in an Aerospike server installation
- * Manage the Aerospike server service
+ * Manage the Aerospike database server service
  * Optionnally manage the Aerospike Management Console service
 
 ## Setup
@@ -58,8 +60,9 @@ Files managed by the module:
 ### Setup Requirements
 
 The module requires:
- - [Puppetlabs stdlib](https://github.com/puppetlabs/puppetlabs-stdlib.git)
- - [Puppet-community's archive module](https://github.com/puppet-community/puppet-archive.git) tested against version 0.4.4
+
+ * [Puppetlabs stdlib](https://github.com/puppetlabs/puppetlabs-stdlib.git)
+ * [Puppet-community's archive module](https://github.com/puppet-community/puppet-archive.git)
 
 ### Beginning with aerospike
 
@@ -67,7 +70,7 @@ The module can be used out of the box directly, it just requires puppet-communit
 
 To install (with all the dependencies):
 
-```
+```shell
 puppet module install puppetlabs/stdlib
 puppet module install puppet/archive
 puppet module install TubeMogul/aerospike
@@ -75,8 +78,8 @@ puppet module install TubeMogul/aerospike
 
 ## Usage
 
-In those examples are put both the puppet-only configuration, but also the
-corresponding configuration for those whi use hiera (I find it more convienient for
+Those examples include the puppet-only configuration, and the
+corresponding configuration for those who use hiera (I find it more convienient for
 copy/paste of a full configuration when you have both - yes, I'm lazy ;-) ).
 
 ### Using the aerospike enterprise version
@@ -126,7 +129,7 @@ class { 'aerospike':
       'replication-factor'    => 2,
       'memory-size'           => '1G',
       'default-ttl'           => 172800,
-      'high-water-disk-pct    => 90,
+      'high-water-disk-pct'   => 90,
       'high-water-memory-pct' => 90,
       'set hahaha'            => [ 'set-disable-eviction true', ],
       'storage-engine device' => [
@@ -172,6 +175,7 @@ aerospike::config_ns:
 ### Installing the Aerospike Management Console
 
 To install and the management console and have the service managed by puppet, use:
+
 ```puppet
 class { 'aerospike':
   'amc_install'        => true,
@@ -195,7 +199,7 @@ using Mesh heartbeats). The cluster group id is a totally arbitrary choice.
 
 In this example, the servers IP are 192.168.1.100, 192.168.1.101 and 192.168.1.102
 
-Note: You will need aerospike 3.7.0 or higher to support some of those parameters.
+**Note:** You will need aerospike 3.7.0 or higher to support some of those parameters.
 
 ```puppet
 class { 'aerospike':
@@ -227,6 +231,7 @@ class { 'aerospike':
 ```
 
 Which would result in the following hiera configuration:
+
 ```yaml
 ---
 aerospike::config_service:
@@ -269,15 +274,15 @@ aerospike::config_cluster:
 
 #### Class aerospike
 
-#### `version`
+##### `version`
 
-Version of aerospike to install.
+Version of the aerospike database engine to install.
 
 Default: `3.7.2`
 
 ##### `download_dir`
 
-Directory where to download the archive becore unpacking it.
+Directory where to download the archive before unpacking it.
 
 Default: `/usr/local/src`
 
@@ -317,20 +322,21 @@ Default: `ubuntu14.04`
 Username to use to download the enterprise version of the package. This is
 used for both the download of the aerospike server package and the amc. This
 parameter is not necessary when downloading the community version from the
-aerospike repositories.
+aerospike repositories but you can use it if you download from a
+password-protected custom url.
 
 Default: `undef`
 
 ##### `download_pass`
 
-Password to use to download the enterprise version of the package to use
-used for both the download of the aerospike server package and the amc.
+Password to use to download the enterprise version of the package to use.
+It is used for both the download of the aerospike server package and the amc.
 
 Default: `undef`
 
 ##### `system_user`
 
-OS user where the service will be used in the service configuration
+OS user that the service will use in the service configuration.
 This user will only be defined if not already defined somewhere else in your
 Puppet catalog.
 
@@ -338,13 +344,13 @@ Default: `root`
 
 ##### `system_uid`
 
-UID of the OS user to use.
+UID of the OS user to be used by the service.
 
 Default: `0`
 
 ##### `system_group`
 
-OS group where the service will be used in the service configuration
+OS group that the service will use in the service configuration.
 This group will only be defined if not already defined somewhere else in your
 Puppet catalog.
 
@@ -352,7 +358,7 @@ Default: `root`
 
 ##### `system_gid`
 
-GID of the OS user to use.
+GID of the OS user to be used by the service.
 
 Default: `0`
 
@@ -362,12 +368,14 @@ Configuration parameters to define in the service context of the aerospike
 configuration file.
 
 This parameter is a hash table with:
-  - the property name as key
-  - the property value as value
+  * the property name as key
+  * the property value as value
 
 **Note:** The user and group are already defined by the system_user and system_group parameters.
+No need to specify them again.
 
 The default value is:
+
 ```
 {
   'paxos-single-replica-limit'    => 1,
@@ -380,6 +388,7 @@ The default value is:
 ```
 
 Which generates the following configuration for the service context:
+
 ```
 service {
   user root
@@ -402,10 +411,11 @@ Configuration parameters to define in the logging context of the aerospike
 configuration file.
 
 This parameter is a hash table with:
-    - the log file path as key (Log file must be an absolute path.)
-    - an array with the definition of all the contexts definitions as value
+    * the log file path as key (Reminder: Log file must be an absolute path.)
+    * an array with the definition of all the contexts definitions as value
 
 The default value is:
+
 ```
 {
   '/var/log/aerospike/aerospike.log' => [ 'any info', ],
@@ -413,6 +423,7 @@ The default value is:
 ```
 
 Which generates the following configuration for the logging context:
+
 ```
 logging {
   file /var/log/aerospike/aerospike.log {
@@ -430,10 +441,11 @@ Configuration parameters to define in the service sub-stanza in the network
 context of the aerospike configuration file.
 
 This parameter is a hash table with:
-  - the property name as key
-  - the property value as value
+  * the property name as key
+  * the property value as value
 
 Default:
+
 ```
 {
   'address' => 'any',
@@ -450,10 +462,11 @@ Configuration parameters to define in the fabric sub-stanza in the network
 context of the aerospike configuration file.
 
 This parameter is a hash table with:
-  - the property name as key
-  - the property value as value
+  * the property name as key
+  * the property value as value
 
 Default:
+
 ```
 {
   'address' => 'any',
@@ -470,10 +483,11 @@ Configuration parameters to define in the info sub-stanza in the network
 context of the aerospike configuration file.
 
 This parameter is a hash table with:
-  - the property name as key
-  - the property value as value
+  * the property name as key
+  * the property value as value
 
 Default:
+
 ```
 {
   'address' => 'any',
@@ -490,14 +504,14 @@ Configuration parameters to define in the heartbeat sub-stanza in the
 network context of the aerospike configuration file.
 
 This parameter is a hash table with:
-  - the property name as key
-  - the property value as value
+  * the property name as key
+  * the property value as value
 
-**IMPORTANT:** for declaring mesh-seed-address-port, you will need to use the
-           'mesh-seed-address-port <IP Address>' as a key if you want it
-           to work.
+**IMPORTANT:** for declaring mesh-seed-address-port, you will need to use the `'mesh-seed-address-port <IP Address>'` as a key if you want it to work.
+See [Configuring a rack-aware cluster](#configuring-a-rack-aware-cluster) for an example using this.
 
 Default:
+
 ```
 {
   'mode'     => 'multicast',
@@ -517,12 +531,12 @@ Configuration parameters to define the namespaces contexts in the aerospike
 configuration file.
 
 This parameter is a hash table with:
-  - the namespace name as key
-  - the value is another hash table composed by:
+  * the namespace name as key
+  * the value is another hash table composed by:
     - the name of the property as key
     - the value of the property as value.
 
-When defining a sub-stanza in it for a property like you do for a
+When defining a sub-stanza in it for a property as you do for a
 storage-engine device, you have to concatenante the property and the value
 as the key (for example: "storage-engine device") and set the value as an
 array, each item of the array being a line of configuration that you want to
@@ -530,6 +544,7 @@ have defined as-is in your sub-stanza. Check the example section of this
 file for a more concrete example.
 
 Default:
+
 ```
 {
   'foo'                     => {
@@ -558,8 +573,8 @@ Configuration parameters to define the cluster context in the aerospike
 configuration file.
 
 This parameter is a hash table with:
-  - the property name as key
-  - the property value as value
+  * the property name as key
+  * the property value as value
 
 Default: `{}`
 
@@ -572,13 +587,13 @@ Configuration parameters to define the security context in the aerospike
 configuration file.
 
 This parameter is a hash table with:
-  - the property name as key
-  - the value of the property as value.
+  * the property name as key
+  * the value of the property as value.
 
-**Note:** When defining a subcontext in it for a property like you do for the
-      syslog or log subcontexts, set the subcontext name as the key and the
-      value will be an array with each item of the array being a full line
-      of configuration.
+**Note:** When defining a subcontext in it for a property as you do for the
+syslog or log subcontexts, set the subcontext name as the key and the
+value will be an array with each item of the array being a full line
+of configuration.
 
 Default: `{}`
 
@@ -588,13 +603,13 @@ Configuration parameters to define the xdr context in the aerospike
 configuration file (for cross-datacenter replication).
 
 This parameter is a hash table with:
-  - the property name as key
-  - the value of the property as value.
+  * the property name as key
+  * the value of the property as value.
 
-**Note:** When defining a subcontext in it for a property like you do for the
-      datacenter subcontext, set the subcontext name as the key and the
-      value will be an array with each item of the array being a full line
-      of configuration.
+**Note:** When defining a subcontext in it for a property as you do for the
+datacenter subcontext, set the subcontext name as the key and the
+value will be an array with each item of the array being a full line
+of configuration.
 
 Default: `{}`
 
@@ -636,6 +651,7 @@ same pattern as the original name when using this custom url aka:
 aerospike-amc-${aerospike::edition}-${amc_version}${amc_pkg_extension}
 
 The default url is:
+
 ```
 http://www.aerospike.com/artifacts/aerospike-amc-${aerospike::edition}/${amc_version}/aerospike-amc-${aerospike::edition}-${amc_version}${amc_pkg_extension}
 ```
@@ -682,26 +698,26 @@ logging {
 # network context definition
 network {
   service {
-  address any
-  port 3000
+    address any
+    port 3000
   }
 
   fabric {
-  address any
-  port 3001
+    address any
+    port 3001
   }
 
   info {
-  address any
-  port 3003
+    address any
+    port 3003
   }
 
   heartbeat {
-  address any
-  interval 150
-  mode multicast
-  port 9918
-  timeout 10
+    address any
+    interval 150
+    mode multicast
+    port 9918
+    timeout 10
   }
 }
 
@@ -719,6 +735,7 @@ namespace foo {
 
 Example of an aerospike installation with 2 namespaces and a replication to 2
 datacenters and a configuration of a security context:
+
 ```
 class { 'aerospike':
   $config_ns = {
@@ -750,18 +767,18 @@ class { 'aerospike':
       'report-violation true',
     ],
   },
-  $config_xdr => {
-    'enable-xdr' => true,
+  $config_xdr            => {
+    'enable-xdr'         => true,
     'xdr-namedpipe-path' => '/tmp/xdr_pipe',
     'xdr-digestlog-path' => '/opt/aerospike/digestlog 100G',
-    'xdr-errorlog-path' => '/var/log/aerospike/asxdr.log',
-    'xdr-pidfile' => '/var/run/aerospike/asxdr.pid',
-    'local-node-port' => 3000,
-    'xdr-info-port' => 3004,
-    'datacenter DC1' => [
+    'xdr-errorlog-path'  => '/var/log/aerospike/asxdr.log',
+    'xdr-pidfile'        => '/var/run/aerospike/asxdr.pid',
+    'local-node-port'    => 3000,
+    'xdr-info-port'      => 3004,
+    'datacenter DC1'     => [
       'dc-node-address-port 172.68.17.123 3000',
     ],
-    'datacenter DC2' => [
+    'datacenter DC2'     => [
       'dc-node-address-port 172.68.39.123 3000',
     ],
   },

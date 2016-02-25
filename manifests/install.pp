@@ -130,7 +130,7 @@ class aerospike::install {
         require  => [ Archive[$amc_target_archive], ],
       })
     } else {
-      fail("Installation of the amc via tarball not yet supported by this module.")
+      fail('Installation of the amc via tarball not yet supported by this module.')
     }
   }
 }
