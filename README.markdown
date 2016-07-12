@@ -18,6 +18,7 @@
     * [Defining namespaces](#defining-namespaces)
     * [Installing the Aerospike Management Console](#installing-the-aerospike-management-console)
     * [Configuring a rack-aware cluster](#configuring-a-rack-aware-cluster)
+    * [Defining credentials for XDR](#defining-credentials-for-xdr)
 5. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
     * [Public classes](#public-classes)
     * [Private classes](#private-classes)
@@ -255,6 +256,27 @@ aerospike::config_net_hb:
 aerospike::config_cluster:
   mode: dynamic
   self-group-id: 666
+```
+
+### Defining credentials for XDR
+
+To define credentials of remote cluster(s) for XDR in separate secured file
+'/etc/aerospike/security-credentials\_$DC\_name.txt', use:
+
+```puppet
+class { 'aerospike':
+  'config_xdr_credentials' => {"DC1"=>{"username"=>"xdr_user_DC1", "password"=>"xdr_password_DC1"}},
+}
+```
+
+Or, using hiera, you just include 'aerospike' in your puppet profile and in hiera:
+
+```yaml
+---
+aerospike::config_xdr_credentials:
+  DC1:
+    username: 'xdr_user_DC1'
+    password: 'xdr_password_DC1'
 ```
 
 ## Reference
@@ -614,6 +636,25 @@ of configuration.
 Default: `{}`
 
 For more informations about configuring xdr, check:
+http://www.aerospike.com/docs/operations/configure/cross-datacenter/
+
+##### `config_xdr_credentials`
+
+Configuration parameters to define the xdr credentials (user/password) from remote cluster in the
+separate secured file when security enabled. 
+
+This parameter is a hash table with:
+  * the property name as key
+  * the value of the property as value.
+
+**Note:** When defining a subcontext in it for a property as you do for the
+defining the name of datacenter subcontext, set the subcontext name as the key and the
+value will be a hash table with the property name (username/password) as key and the value
+of the property as value.
+
+Default: `{}`
+
+For more informations about configuring xdr when security enabled, check:
 http://www.aerospike.com/docs/operations/configure/cross-datacenter/
 
 ##### `service_status`
