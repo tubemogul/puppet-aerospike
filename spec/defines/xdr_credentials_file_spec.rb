@@ -14,6 +14,8 @@ describe 'aerospike::xdr_credentials_file' do
       should contain_file('/etc/aerospike/security-credentials_DC1.txt').with({
         'ensure' => 'present',
         'mode'   => '0600',
+        'owner'  => nil,
+        'group'  => nil,
         })\
         .with_content(/^credentials$/)\
         .with_content(/username xdr_user_DC1$/)\
