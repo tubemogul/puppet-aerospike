@@ -260,7 +260,7 @@ aerospike::config_cluster:
 
 ### Defining credentials for XDR
 
-To define credentials of remote cluster(s) for XDR in separate secured file
+To define credentials of remote cluster(s) for XDR in a separate secured file
 '/etc/aerospike/security-credentials\_$DC\_name.txt', use:
 
 ```puppet
@@ -640,7 +640,7 @@ http://www.aerospike.com/docs/operations/configure/cross-datacenter/
 
 ##### `config_xdr_credentials`
 
-Configuration parameters to define the xdr credentials (user/password) from remote cluster in the
+Configuration parameters to define the xdr credentials (user/password) for the remote cluster in the
 separate secured file when security enabled. 
 
 This parameter is a hash table with:
