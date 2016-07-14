@@ -287,6 +287,35 @@ describe 'aerospike' do
         end
       end
 
+      # #####################################################################
+      # Tests creating a file with XDR credentials
+      # #####################################################################
+      describe "try create a file with XDR credentials - defined default params on #{osfamily}" do
+        let(:params) {{
+          :config_xdr_credentials => {},
+        }}
+        let(:facts) {{
+          :osfamily => osfamily,
+        }}
+
+        # The details of the test of Aerospike::Xdr_credentials_file define are in
+        # spec/defines/xdr_credentials_file_spec.rb
+        it { should_not contain_Aerospike__Xdr_credentials_file('') }
+      end
+
+      describe "create a file with XDR credentials on #{osfamily}" do
+        let(:params) {{
+          :config_xdr_credentials => {"DC1"=>{"username"=>"xdr_user_DC1", "password"=>"xdr_password_DC1"}},
+        }}
+        let(:facts) {{
+          :osfamily => osfamily,
+        }}
+
+        # The details of the test of Aerospike::Xdr_credentials_file define are in
+        # spec/defines/xdr_credentials_file_spec.rb
+        it { should contain_Aerospike__Xdr_credentials_file('DC1') }
+      end
+
     end
   end
 

@@ -62,16 +62,17 @@ class aerospike (
       ]
     },
   },
-  $config_cluster     = {},
-  $config_sec         = {},
-  $config_xdr         = {},
-  $service_status     = 'running',
-  $amc_install        = false,
-  $amc_version        = '3.6.6',
-  $amc_download_dir   = '/usr/local/src',
-  $amc_download_url   = undef,
-  $amc_manage_service = false,
-  $amc_service_status = 'running',
+  $config_cluster         = {},
+  $config_sec             = {},
+  $config_xdr             = {},
+  $config_xdr_credentials = {},
+  $service_status         = 'running',
+  $amc_install            = false,
+  $amc_version            = '3.6.6',
+  $amc_download_dir       = '/usr/local/src',
+  $amc_download_url       = undef,
+  $amc_manage_service     = false,
+  $amc_service_status     = 'running',
 ) {
 
   validate_string(
@@ -102,9 +103,21 @@ class aerospike (
     $config_cluster,
     $config_sec,
     $config_xdr,
+    $config_xdr_credentials,
   )
   if ! is_integer($system_uid) { fail("invalid ${system_uid} provided") }
   if ! is_integer($system_gid) { fail("invalid ${system_gid} provided") }
+
+  # If 'config_xdr_credentials' defined - create file(s) with credentials for XDR
+  if ! empty($config_xdr_credentials) {
+    $xdr_rDCs = keys($config_xdr_credentials)
+    aerospike::xdr_credentials_file {
+      $xdr_rDCs:
+        all_xdr_credentials => $config_xdr_credentials,
+        owner               => $system_user,
+        group               => $system_group,
+    }
+  }
 
   class {'aerospike::install': } ->
   class {'aerospike::config': } ~>
