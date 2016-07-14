@@ -1,7 +1,9 @@
 # == Define: aerospike::xdr_credentials_file
 #
 define aerospike::xdr_credentials_file (
-  $all_xdr_credentials
+  $all_xdr_credentials,
+  $owner = 'root',
+  $group = 'root',
 ) {
   if ! empty($all_xdr_credentials) {
     $dc_credentials = $all_xdr_credentials[$name]
@@ -9,8 +11,8 @@ define aerospike::xdr_credentials_file (
       ensure  => present,
       content => template('aerospike/security-credentials.conf.erb'),
       mode    => '0600',
-      owner   => $aerospike::system_user,
-      group   => $aerospike::system_group,
+      owner   => $owner,
+      group   => $group,
     }
   }
 

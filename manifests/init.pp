@@ -111,7 +111,12 @@ class aerospike (
   # If 'config_xdr_credentials' defined - create file(s) with credentials for XDR
   if ! empty($config_xdr_credentials) {
     $xdr_rDCs = keys($config_xdr_credentials)
-    xdr_credentials_file { $xdr_rDCs: all_xdr_credentials => $config_xdr_credentials }
+    xdr_credentials_file {
+      $xdr_rDCs:
+        all_xdr_credentials => $config_xdr_credentials,
+        owner               => $system_user,
+        group               => $system_group,
+    }
   }
 
   class {'aerospike::install': } ->

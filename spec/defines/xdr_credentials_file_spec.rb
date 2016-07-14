@@ -7,6 +7,8 @@ describe 'aerospike::xdr_credentials_file' do
     let (:params) {
       {
         :all_xdr_credentials => {"DC1"=>{"username"=>"xdr_user_DC1", "password"=>"xdr_password_DC1"}},
+        :owner               => 'root',
+        :group               => 'root',
       }
     }
 
@@ -14,8 +16,8 @@ describe 'aerospike::xdr_credentials_file' do
       should contain_file('/etc/aerospike/security-credentials_DC1.txt').with({
         'ensure' => 'present',
         'mode'   => '0600',
-        'owner'  => nil,
-        'group'  => nil,
+        'owner'  => 'root',
+        'group'  => 'root',
         })\
         .with_content(/^credentials$/)\
         .with_content(/username xdr_user_DC1$/)\
