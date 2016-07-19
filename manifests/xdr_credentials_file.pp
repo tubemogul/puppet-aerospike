@@ -13,6 +13,7 @@ define aerospike::xdr_credentials_file (
       mode    => '0600',
       owner   => $owner,
       group   => $group,
+      notify  => Service['aerospike'],
     }
   }
 
