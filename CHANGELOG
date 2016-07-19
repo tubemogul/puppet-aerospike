@@ -1,3 +1,7 @@
+2016-07-19 Release 1.1.1:
+- Addded notify to refresh service after creating/modifying XDR credential file
+- Added tests for puppet 4.4 and 4.5
+- Fixed a puppet-lint warning
 2016-07-18 Release 1.1.0:
 - adding support for credential files on XDR
 2016-03-02 Release 1.0.1:

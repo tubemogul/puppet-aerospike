@@ -17,9 +17,9 @@ describe 'aerospike' do
 
         # Tests related to the aerospike base class content
         it { should create_class('aerospike') }
-        it { should contain_class('aerospike::install').that_comes_before('aerospike::config') }
+        it { should contain_class('aerospike::install').that_comes_before('Class[aerospike::config]') }
         it { should contain_class('aerospike::config') }
-        it { should contain_class('aerospike::service').that_subscribes_to('aerospike::config') }
+        it { should contain_class('aerospike::service').that_subscribes_to('Class[aerospike::config]') }
 
         # Tests related to the aerospike::install class
         it { should contain_class('archive') }
@@ -180,9 +180,9 @@ describe 'aerospike' do
 
         # Tests related to the aerospike base class content
         it { should create_class('aerospike') }
-        it { should contain_class('aerospike::install').that_comes_before('aerospike::config') }
+        it { should contain_class('aerospike::install').that_comes_before('Class[aerospike::config]') }
         it { should contain_class('aerospike::config') }
-        it { should contain_class('aerospike::service').that_subscribes_to('aerospike::config') }
+        it { should contain_class('aerospike::service').that_subscribes_to('Class[aerospike::config]') }
 
         # Tests related to the aerospike::install class
         it do
