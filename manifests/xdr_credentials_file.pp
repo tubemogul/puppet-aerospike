@@ -7,7 +7,7 @@ define aerospike::xdr_credentials_file (
 ) {
   if ! empty($all_xdr_credentials) {
     $dc_credentials = $all_xdr_credentials[$name]
-    file { "/etc/aerospike/security-credentials_$name.txt":
+    file { "/etc/aerospike/security-credentials_${name}.txt":
       ensure  => present,
       content => template('aerospike/security-credentials.conf.erb'),
       mode    => '0600',
