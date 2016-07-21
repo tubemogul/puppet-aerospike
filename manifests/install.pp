@@ -69,7 +69,7 @@ class aerospike::install {
         $amc_extract = false
         $amc_target_archive = "${aerospike::amc_download_dir}/aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
         $amc_dest = $amc_target_archive
-        $pip_os_packages  = ['build-essential', 'python-dev', 'libffi-dev', 'libssl-dev']
+        $bcrypt_os_packages  = ['build-essential', 'python-dev', 'libffi-dev']
       }
       'RedHat': {
         $amc_pkg_extension = '-el5.x86_64.rpm'
@@ -77,7 +77,7 @@ class aerospike::install {
         $amc_extract = false
         $amc_target_archive = "${aerospike::amc_download_dir}/aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
         $amc_dest = $amc_target_archive
-        $pip_os_packages  = ['gcc', 'libffi-devel', 'python-devel', 'openssl-devel']
+        $bcrypt_os_packages  = ['gcc', 'libffi-devel', 'python-devel']
       }
       default : {
         $amc_pkg_extension ='.tar.gz'
@@ -85,7 +85,7 @@ class aerospike::install {
         $amc_extract = true
         $amc_target_archive = "${aerospike::amc_download_dir}/aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
         $amc_dest = "${aerospike::amc_download_dir}/aerospike-amc-${aerospike::edition}-${aerospike::amc_version}"
-        $pip_os_packages  = ['gcc', 'libffi-devel', 'python-devel', 'openssl-devel']
+        $bcrypt_os_packages  = ['gcc', 'libffi-devel', 'python-devel']
       }
     }
 
@@ -95,26 +95,19 @@ class aerospike::install {
       default => $aerospike::amc_download_url,
     }
 
-    # Install pip without pip, see https://pip.pypa.io/en/stable/installing/
-    exec { 'bootstrap pip':
-      command => '/usr/bin/curl https://bootstrap.pypa.io/get-pip.py | python',
-      creates => '/usr/local/bin/pip',
-    }
-    file { 'pip-python':
-      ensure  => link,
-      path    => '/usr/bin/pip-python',
-      target  => '/usr/bin/pip',
-      require => Exec['bootstrap pip'],
-    }
-
-    $os_packages  = ['ansible']
-    $pip_packages = ['markupsafe', 'paramiko', 'ecdsa', 'pycrypto', 'bcrypt']
+    $os_packages  = ['python-pip', 'ansible', 'python-paramiko']
+    $pip_packages = ['markupsafe', 'ecdsa', 'pycrypto']
     ensure_packages($os_packages, { ensure => installed, } )
-    ensure_packages($pip_os_packages, { ensure => installed, } )
     ensure_packages($pip_packages, {
       ensure   => installed,
       provider => 'pip',
-      require  => [ Package[$pip_os_packages], Exec['bootstrap pip'], ],
+      require  => [ Package['python-pip'], ],
+    })
+    ensure_packages($bcrypt_os_packages, { ensure => installed, } )
+    ensure_packages('bcrypt', {
+      ensure   => installed,
+      provider => 'pip',
+      require  => [ Package[$bcrypt_os_packages], Package['python-pip'], ],
     })
     archive { $amc_target_archive:
       ensure       => present,
@@ -131,7 +124,7 @@ class aerospike::install {
     # For now only the packages that are not tarballs are installed.
     if $amc_pkg_provider != undef {
       ensure_packages("aerospike-amc-${aerospike::edition}", {
-        ensure   => installed,
+        ensure   => latest,
         provider => $amc_pkg_provider,
         source   => $amc_dest,
         require  => [ Archive[$amc_target_archive], ],
