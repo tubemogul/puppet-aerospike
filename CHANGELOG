@@ -1,3 +1,5 @@
+2016-07-27 Release 1.1.2:
+- added fix on AMC upgrade and dependencies
 2016-07-19 Release 1.1.1:
 - Addded notify to refresh service after creating/modifying XDR credential file
 - Added tests for puppet 4.4 and 4.5
