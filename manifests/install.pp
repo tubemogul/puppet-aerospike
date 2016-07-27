@@ -69,7 +69,7 @@ class aerospike::install {
         $amc_extract = false
         $amc_target_archive = "${aerospike::amc_download_dir}/aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
         $amc_dest = $amc_target_archive
-        $bcrypt_os_packages  = ['build-essential','python-dev','libffi-dev']
+        $bcrypt_os_packages  = ['build-essential', 'python-dev', 'libffi-dev']
       }
       'RedHat': {
         $amc_pkg_extension = '-el5.x86_64.rpm'
@@ -95,8 +95,8 @@ class aerospike::install {
       default => $aerospike::amc_download_url,
     }
 
-    $os_packages  = ['python-pip', 'ansible']
-    $pip_packages = ['markupsafe','paramiko','ecdsa','pycrypto']
+    $os_packages  = ['python-pip', 'ansible', 'python-paramiko']
+    $pip_packages = ['markupsafe', 'ecdsa', 'pycrypto']
     ensure_packages($os_packages, { ensure => installed, } )
     ensure_packages($pip_packages, {
       ensure   => installed,
@@ -124,7 +124,7 @@ class aerospike::install {
     # For now only the packages that are not tarballs are installed.
     if $amc_pkg_provider != undef {
       ensure_packages("aerospike-amc-${aerospike::edition}", {
-        ensure   => installed,
+        ensure   => latest,
         provider => $amc_pkg_provider,
         source   => $amc_dest,
         require  => [ Archive[$amc_target_archive], ],

@@ -359,9 +359,9 @@ describe 'aerospike' do
 				# Tests related to the aerospike::install class
         it { is_expected.to contain_package('python-pip').with_ensure('installed').that_comes_before('Package[bcrypt]') }
         it { is_expected.to contain_package('ansible').with_ensure('installed') }
+        it { is_expected.to contain_package('python-paramiko').with_ensure('installed') }
 
         it { is_expected.to contain_package('markupsafe').with_ensure('installed').with_provider('pip') }
-        it { is_expected.to contain_package('paramiko').with_ensure('installed').with_provider('pip') }
         it { is_expected.to contain_package('ecdsa').with_ensure('installed').with_provider('pip') }
         it { is_expected.to contain_package('pycrypto').with_ensure('installed').with_provider('pip') }
 
@@ -382,7 +382,7 @@ describe 'aerospike' do
 
 				it do
           is_expected.to contain_package('aerospike-amc-community')\
-            .with_ensure('installed')\
+            .with_ensure('latest')\
             .with_provider('dpkg')\
             .with_source('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb')
         end
