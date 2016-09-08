@@ -59,11 +59,17 @@ cluster {
 # namespace context: <%= ns %>
 namespace <%= ns %> {
 <%  cfg.sort.each do |item_k,item_v|
-      if item_v.is_a?(Array) -%>
+  if item_v.is_a?(Array)
+    if item_k == 'xdr-remote-datacenter'
+       item_v.sort.each do |prop| -%>
+  <%= item_k %> <%= prop %>
+<%     end
+    else -%>
   <%= item_k %> {
-<%       item_v.sort.each do |prop| -%>
+<%     item_v.sort.each do |prop| -%>
     <%= prop %>
-<%       end -%>
+<%     end
+    end -%>
   }
 <%     else -%>
   <%= item_k %> <%= item_v %>

@@ -316,6 +316,55 @@ describe 'aerospike' do
         it { should contain_Aerospike__Xdr_credentials_file('DC1') }
       end
 
+
+      # #####################################################################
+      # Tests multiple datacenter replication for a given namespace
+      # #####################################################################
+      describe "Tests multiple datacenter replication for a given namespace on #{osfamily}" do
+        let(:params) {{
+          :config_ns                  => {
+            'foo'                     => {
+              'enable-xdr'            => true,
+              'xdr-remote-datacenter' => [ 'DC1', 'DC2' ],
+            },
+          },
+          :config_xdr            => {
+            'enable-xdr'         => true,
+            'xdr-digestlog-path' => '/opt/aerospike/digestlog 100G',
+            'xdr-errorlog-path'  => '/var/log/aerospike/asxdr.log',
+            'xdr-pidfile'        => '/var/run/aerospike/asxdr.pid',
+            'local-node-port'    => 4000,
+            'xdr-info-port'      => 3004,
+            'datacenter DC1'     => [
+              'dc-node-address-port 172.1.1.100 3000',
+            ],
+            'datacenter DC2' => [
+              'dc-node-address-port 172.2.2.100 3000',
+            ],
+          },
+        }}
+        let(:facts) {{
+          :osfamily => osfamily,
+        }}
+
+        it { should compile.with_all_deps }
+        it do
+          is_expected.to create_file('/etc/aerospike/aerospike.conf')\
+            .with_content(/^\s*namespace foo {$/)\
+            .with_content(/^\s*enable-xdr true$/)\
+            .with_content(/^\s*xdr-remote-datacenter DC1$/)\
+            .with_content(/^\s*xdr-remote-datacenter DC2$/)\
+            .with_content(/^\s*xdr-digestlog-path \/opt\/aerospike\/digestlog 100G$/)\
+            .with_content(/^\s*xdr-errorlog-path \/var\/log\/aerospike\/asxdr.log$/)\
+            .with_content(/^\s*xdr-pidfile \/var\/run\/aerospike\/asxdr.pid$/)\
+            .with_content(/^\s*local-node-port 4000$/)\
+            .with_content(/^\s*xdr-info-port 3004$/)\
+            .with_content(/^\s*datacenter DC1 {$/)\
+            .with_content(/^\s*dc-node-address-port 172.1.1.100 3000$/)\
+            .with_content(/^\s*datacenter DC2 {$/)\
+            .with_content(/^\s*dc-node-address-port 172.2.2.100 3000$/)
+        end
+      end
     end
   end
 

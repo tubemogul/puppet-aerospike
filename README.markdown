@@ -19,6 +19,7 @@
     * [Installing the Aerospike Management Console](#installing-the-aerospike-management-console)
     * [Configuring a rack-aware cluster](#configuring-a-rack-aware-cluster)
     * [Defining credentials for XDR](#defining-credentials-for-xdr)
+    * [Full real-life multi-datacenter replication example for XDR with security enabled](#full-real-life-multi-datacenter-replication-example-for-xdr-with-security-enabled)
 5. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
     * [Public classes](#public-classes)
     * [Private classes](#private-classes)
@@ -33,7 +34,7 @@ It can optionally install the Aerospike Management Console (aka. amc) and manage
 
 It has been tested and used in production with:
 
- * Puppet 3.8 on Ubuntu 14.04 (trusty) with aerospike 3.7.2 and 3.7.3 community
+ * Puppet 3.8 on Ubuntu 14.04 (trusty) with aerospike 3.8.4 community
    and enterprise versions with and without the installation of the amc 3.6.6.
    The master branch of puppet-archive was used including the PR 117 and 121.
 
@@ -69,12 +70,19 @@ The module requires:
 
 The module can be used out of the box directly, it just requires puppet-community's archive module and puppetlab's stdlib to be in your modulepath.
 
-To install (with all the dependencies):
+To install, just use the following, puppet software will take care of puling the
+dependencies:
+
+```shell
+puppet module install TubeMogul/aerospike
+```
+
+If you are working on a version not coming from the forge but directly from the
+github repo, here is how you can install the dependencies of the module:
 
 ```shell
 puppet module install puppetlabs/stdlib
 puppet module install puppet/archive
-puppet module install TubeMogul/aerospike
 ```
 
 ## Usage
@@ -90,10 +98,10 @@ enterprise version using the default namespace:
 
 ```puppet
 class { 'aerospike':
-  'version'       => '3.7.3',
-  'edition'       => 'enterprise',
-  'download_user' => 'myuser',
-  'download_pass' => 'mypassword',
+  $version       => '3.7.3',
+  $edition       => 'enterprise',
+  $download_user => 'myuser',
+  $download_pass => 'mypassword',
 }
 ```
 
@@ -179,8 +187,8 @@ To install and the management console and have the service managed by puppet, us
 
 ```puppet
 class { 'aerospike':
-  'amc_install'        => true,
-  'amc_manage_service' => true,
+  $amc_install        => true,
+  $amc_manage_service => true,
 }
 ```
 
@@ -204,7 +212,7 @@ In this example, the servers IP are 192.168.1.100, 192.168.1.101 and 192.168.1.1
 
 ```puppet
 class { 'aerospike':
-  config_service => {
+  $config_service => {
     'paxos-single-replica-limit'    => 1,
     'pidfile'                       => '/var/run/aerospike/asd.pid',
     'service-threads'               => 4,
@@ -214,7 +222,7 @@ class { 'aerospike':
     'paxos-protocol'                => 'v4',
     'paxos-recovery-policy'         => 'auto-reset-master',
   },
-  config_net_hb => {
+  $config_net_hb => {
     'mode'                                 => 'mesh',
     'address'                              => 'any',
     'port'                                 => 3002,
@@ -224,7 +232,7 @@ class { 'aerospike':
     'interval'                             => 150,
     'timeout'                              => 20,
   },
-  config_cluster => {
+  $config_cluster => {
     'mode'          => 'dynamic',
     'self-group-id' => 666,
   },
@@ -265,7 +273,7 @@ To define credentials of remote cluster(s) for XDR in a separate secured file
 
 ```puppet
 class { 'aerospike':
-  'config_xdr_credentials' => {"DC1"=>{"username"=>"xdr_user_DC1", "password"=>"xdr_password_DC1"}},
+  $config_xdr_credentials => {"DC1"=>{"username"=>"xdr_user_DC1", "password"=>"xdr_password_DC1"}},
 }
 ```
 
@@ -277,6 +285,234 @@ aerospike::config_xdr_credentials:
   DC1:
     username: 'xdr_user_DC1'
     password: 'xdr_password_DC1'
+```
+
+### Full real-life multi-datacenter replication example for XDR with security enabled
+
+Note that this example requires you to run at least aerospike 3.8.1.
+
+To define a XDR replication over a namespace to multiple datacenters, you can
+work based on the following example (note that it is based on a real-life prod example.
+Of course, IP and other security-sensitive informations here are fake or removed):
+
+```puppet
+class { 'aerospike':
+  $version        => '3.8.4',
+  $config_service => {
+    'paxos-single-replica-limit'    => 1,
+    'pidfile'                       => '/var/run/aerospike/asd.pid',
+    'service-threads'               => 4,
+    'transaction-queues'            => 4,
+    'transaction-threads-per-queue' => 4,
+    'proto-fd-max'                  => 15000,
+    'paxos-protocol'                => 'v4',
+    'paxos-recovery-policy'         => 'auto-reset-master',
+    'migrate-threads'               => 2,
+  },
+  $config_logging => {
+    '/var/logs/aerospike.log' => [ 'any info' ],
+  },
+  $config_net_hb => {
+    'mode'                              => 'mesh',
+    'address'                           => 'any',
+    'port'                              => 3002,
+    'mesh-seed-address-port 10.0.0.101' => 3002,
+    'mesh-seed-address-port 10.0.0.102' => 3002,
+    'mesh-seed-address-port 10.0.0.103' => 3002,
+    'mesh-seed-address-port 10.0.0.104' => 3002,
+    'mesh-seed-address-port 10.0.0.105' => 3002,
+    'mesh-seed-address-port 10.0.0.106' => 3002,
+    'mesh-seed-address-port 10.0.0.107' => 3002,
+    'mesh-seed-address-port 10.0.0.108' => 3002,
+    'mesh-seed-address-port 10.0.0.109' => 3002,
+    'mesh-seed-address-port 10.0.0.110' => 3002,
+    'mesh-seed-address-port 10.0.0.111' => 3002,
+    'mesh-seed-address-port 10.0.0.112' => 3002,
+    'mesh-seed-address-port 10.0.0.113' => 3002,
+    'mesh-seed-address-port 10.0.0.114' => 3002,
+    'mesh-seed-address-port 10.0.0.115' => 3002,
+    'mesh-seed-address-port 10.0.0.116' => 3002,
+    'mesh-seed-address-port 10.0.0.117' => 3002,
+    'mesh-seed-address-port 10.0.0.118' => 3002,
+    'mesh-seed-address-port 10.0.0.119' => 3002,
+    'mesh-seed-address-port 10.0.0.120' => 3002,
+    'interval'                          => 150,
+    'timeout'                           => 20,
+  },
+  $config_cluster => {
+    'mode'          => 'dynamic',
+    'self-group-id' => 666,
+  },
+  $config_ns => {
+    'replicatedns'          => {
+    'enable-xdr'            => 'true',
+    'xdr-remote-datacenter' => [ 'DC1', 'DC2' ],
+    'replication-factor'    => 2,
+    'memory-size'           => '100G',
+    'default-ttl'           => '30D',
+    'high-water-disk-pct'   => 55,
+    'high-water-memory-pct' => 65,
+    'storage-engine device' => [
+      'device /dev/xvdb /dev/xvdf',
+      'device /dev/xvdc /dev/xvdg',
+      'data-in-memory false',
+      'write-block-size 1024K',
+      'scheduler-mode noop',
+      'defrag-lwm-pct 55',
+      ],
+    },
+  },
+  $config_sec => {
+    'enable-security' => 'true',
+  },
+  $config_xdr => {
+    'enable-xdr' => 'true',
+    'xdr-digestlog-path' => '/mnt/aerospike-digestlog 100G',
+    'xdr-ship-bins' => 'true',
+    'datacenter DC1' => [
+      'dc-node-address-port 192.168.1.100 3000',
+      'dc-node-address-port 192.168.1.101 3000',
+      'dc-node-address-port 192.168.1.102 3000',
+      'dc-node-address-port 192.168.1.103 3000',
+      'dc-node-address-port 192.168.1.104 3000',
+      'dc-node-address-port 192.168.1.105 3000',
+      'dc-node-address-port 192.168.1.106 3000',
+      'dc-node-address-port 192.168.1.107 3000',
+      'dc-use-alternate-services true',
+      'dc-security-config-file /etc/aerospike/security-credentials_DC1.txt'
+    ],
+    'datacenter DC2':
+      'dc-node-address-port 193.168.2.100 3000',
+      'dc-node-address-port 192.168.2.102 3000',
+      'dc-node-address-port 192.168.2.103 3000',
+      'dc-node-address-port 192.168.2.104 3000',
+      'dc-node-address-port 192.168.2.105 3000',
+      'dc-node-address-port 192.168.2.106 3000',
+      'dc-node-address-port 192.168.2.107 3000',
+      'dc-node-address-port 192.168.2.108 3000',
+      'dc-use-alternate-services true',
+      'dc-security-config-file /etc/aerospike/security-credentials_DC2.txt'
+    ],
+  },
+  $config_xdr_credentials => {
+    'DC1' => {
+      'username' => 'svc_xdr_dc1',
+      'password' => 'password_encrypted_with_eyaml_goes_there',
+    },
+    'DC2' => {
+      'username' => 'svc_xdr_dc2',
+      'password' => 'password_encrypted_with_eyaml_goes_there',
+    },
+  }
+}
+```
+
+Or, using hiera, you just include 'aerospike' in your puppet profile and in hiera:
+
+```yaml
+---
+aerospike::version: 3.8.4
+aerospike::config_service:
+  paxos-single-replica-limit: 1
+  pidfile: /var/run/aerospike/asd.pid
+  service-threads: 4
+  transaction-queues: 4
+  transaction-threads-per-queue: 4
+  proto-fd-max: 15000
+  paxos-protocol: v4
+  paxos-recovery-policy: auto-reset-master
+  migrate-threads: 2
+aerospike::config_logging:
+  '/var/logs/aerospike.log': [ 'any info' ]
+aerospike::config_net_hb:
+  mode: mesh
+  address: any
+  port: 3002
+  'mesh-seed-address-port 10.0.0.101': 3002
+  'mesh-seed-address-port 10.0.0.102': 3002
+  'mesh-seed-address-port 10.0.0.103': 3002
+  'mesh-seed-address-port 10.0.0.104': 3002
+  'mesh-seed-address-port 10.0.0.105': 3002
+  'mesh-seed-address-port 10.0.0.106': 3002
+  'mesh-seed-address-port 10.0.0.107': 3002
+  'mesh-seed-address-port 10.0.0.108': 3002
+  'mesh-seed-address-port 10.0.0.109': 3002
+  'mesh-seed-address-port 10.0.0.110': 3002
+  'mesh-seed-address-port 10.0.0.111': 3002
+  'mesh-seed-address-port 10.0.0.112': 3002
+  'mesh-seed-address-port 10.0.0.113': 3002
+  'mesh-seed-address-port 10.0.0.114': 3002
+  'mesh-seed-address-port 10.0.0.115': 3002
+  'mesh-seed-address-port 10.0.0.116': 3002
+  'mesh-seed-address-port 10.0.0.117': 3002
+  'mesh-seed-address-port 10.0.0.118': 3002
+  'mesh-seed-address-port 10.0.0.119': 3002
+  'mesh-seed-address-port 10.0.0.120': 3002
+  interval: 150
+  timeout: 20
+aerospike::config_cluster:
+  mode: dynamic
+  self-group-id: 666
+aerospike::config_ns:
+  replicatedns:
+    enable-xdr: true
+    xdr-remote-datacenter:
+      - DC1
+      - DC2
+    replication-factor: 2
+    memory-size: 100G
+    default-ttl: 30D
+    high-water-disk-pct: 55
+    high-water-memory-pct: 65
+    storage-engine device:
+      - 'device /dev/xvdb /dev/xvdf'
+      - 'device /dev/xvdc /dev/xvdg'
+      - 'data-in-memory false'
+      - 'write-block-size 1024K'
+      - 'scheduler-mode noop'
+      - 'defrag-lwm-pct 55'
+aerospike::config_sec:
+  enable-security: true
+aerospike::config_xdr:
+  enable-xdr: true
+  xdr-digestlog-path: '/mnt/aerospike-digestlog 100G'
+  xdr-ship-bins: true
+  'datacenter DC1':
+    - 'dc-node-address-port 192.168.1.100 3000'
+    - 'dc-node-address-port 192.168.1.101 3000'
+    - 'dc-node-address-port 192.168.1.102 3000'
+    - 'dc-node-address-port 192.168.1.103 3000'
+    - 'dc-node-address-port 192.168.1.104 3000'
+    - 'dc-node-address-port 192.168.1.105 3000'
+    - 'dc-node-address-port 192.168.1.106 3000'
+    - 'dc-node-address-port 192.168.1.107 3000'
+    - 'dc-use-alternate-services true'
+    - 'dc-security-config-file /etc/aerospike/security-credentials_DC1.txt'
+  'datacenter DC2':
+    - 'dc-node-address-port 192.168.2.100 3000'
+    - 'dc-node-address-port 192.168.2.102 3000'
+    - 'dc-node-address-port 192.168.2.103 3000'
+    - 'dc-node-address-port 192.168.2.104 3000'
+    - 'dc-node-address-port 192.168.2.105 3000'
+    - 'dc-node-address-port 192.168.2.106 3000'
+    - 'dc-node-address-port 192.168.2.107 3000'
+    - 'dc-node-address-port 192.168.2.108 3000'
+    - 'dc-use-alternate-services true'
+    - 'dc-security-config-file /etc/aerospike/security-credentials_DC2.txt'
+aerospike::config_xdr_credentials:
+  DC1:
+    username: svc_xdr_dc1
+    password: password_encrypted_with_eyaml_goes_there
+  DC2:
+    username: svc_xdr_dc2
+    password: password_encrypted_with_eyaml_goes_there
+```
+
+Note that if you are only doing xdr to 1 datacenter, you can use a string
+instead of an array for the `xdr-remote-datacenter` parameter:
+
+```yaml
+    xdr-remote-datacenter: DC1
 ```
 
 ## Reference
