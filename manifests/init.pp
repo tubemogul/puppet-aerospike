@@ -8,19 +8,21 @@
 # https://github.com/tubemogul/puppet-aerospike/blob/master/README.markdown
 #
 class aerospike (
-  $version        = '3.7.2',
-  $download_dir   = '/usr/local/src',
-  $download_url   = undef,
-  $remove_archive = false,
-  $edition        = 'community',
-  $target_os_tag  = 'ubuntu14.04',
-  $download_user  = undef,
-  $download_pass  = undef,
-  $system_user    = 'root',
-  $system_uid     = 0,
-  $system_group   = 'root',
-  $system_gid     = 0,
-  $config_service = {
+  $version                  = '3.8.4',
+  $download_dir             = '/usr/local/src',
+  $download_url             = undef,
+  $remove_archive           = false,
+  $edition                  = 'community',
+  $target_os_tag            = 'ubuntu14.04',
+  $download_user            = undef,
+  $download_pass            = undef,
+  $system_user              = 'root',
+  $system_uid               = 0,
+  $system_group             = 'root',
+  $system_gid               = 0,
+  $manage_service           = true,
+  $restart_on_config_change = true,
+  $config_service           = {
     'paxos-single-replica-limit'    => 1,
     'pidfile'                       => '/var/run/aerospike/asd.pid',
     'service-threads'               => 4,
@@ -91,6 +93,8 @@ class aerospike (
     $remove_archive,
     $amc_install,
     $amc_manage_service,
+    $manage_service,
+    $restart_on_config_change,
   )
   validate_hash(
     $config_service,
@@ -108,18 +112,17 @@ class aerospike (
   if ! is_integer($system_uid) { fail("invalid ${system_uid} provided") }
   if ! is_integer($system_gid) { fail("invalid ${system_gid} provided") }
 
-  # If 'config_xdr_credentials' defined - create file(s) with credentials for XDR
-  if ! empty($config_xdr_credentials) {
-    $xdr_rDCs = keys($config_xdr_credentials)
-    aerospike::xdr_credentials_file {
-      $xdr_rDCs:
-        all_xdr_credentials => $config_xdr_credentials,
-        owner               => $system_user,
-        group               => $system_group,
-    }
+  include '::aerospike::install'
+  include '::aerospike::config'
+  include '::aerospike::service'
+
+  if $manage_service and $restart_on_config_change {
+    Class['aerospike::config'] ~>
+    Class['aerospike::service']
   }
 
-  class {'aerospike::install': } ->
-  class {'aerospike::config': } ~>
-  class {'aerospike::service': }
+  Class['aerospike::install'] ->
+  Class['aerospike::config'] ->
+  Class['aerospike::service']
+
 }
