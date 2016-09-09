@@ -5,11 +5,13 @@
 #
 class aerospike::service {
 
-  service {'aerospike':
-    ensure     => $aerospike::service_status,
-    hasrestart => true,
-    hasstatus  => true,
-    provider   => 'init',
+  if $aerospike::manage_service {
+    service {'aerospike':
+      ensure     => $aerospike::service_status,
+      hasrestart => true,
+      hasstatus  => true,
+      provider   => 'init',
+    }
   }
 
   if $aerospike::amc_manage_service {

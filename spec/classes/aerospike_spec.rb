@@ -23,7 +23,7 @@ describe 'aerospike' do
 
         # Tests related to the aerospike::install class
         it { should contain_class('archive') }
-        it { is_expected.to contain_archive('/usr/local/src/aerospike-server-community-3.7.2-ubuntu14.04.tgz') }
+        it { is_expected.to contain_archive('/usr/local/src/aerospike-server-community-3.8.4-ubuntu14.04.tgz') }
         it { is_expected.to contain_exec('aerospike-install-server') }
         it { is_expected.to contain_user('root') }
         it { is_expected.to contain_group('root') }
@@ -48,8 +48,8 @@ describe 'aerospike' do
       # #####################################################################
       describe "aerospike class with custom url on #{osfamily}" do
         let(:params) {{
-          :version        => '3.7.3',
-          :download_url   => 'http://my_fileserver.example.com/aerospike/aerospike-server-enterprise-3.7.3-ubuntu14.04.tgz',
+          :version        => '3.8.3',
+          :download_url   => 'http://my_fileserver.example.com/aerospike/aerospike-server-enterprise-3.8.3-ubuntu14.04.tgz',
           :edition        => 'enterprise',
           :target_os_tag  => 'ubuntu14.04',
         }}
@@ -60,12 +60,12 @@ describe 'aerospike' do
         it { should compile.with_all_deps }
 
         it do
-          is_expected.to contain_archive('/usr/local/src/aerospike-server-enterprise-3.7.3-ubuntu14.04.tgz')\
+          is_expected.to contain_archive('/usr/local/src/aerospike-server-enterprise-3.8.3-ubuntu14.04.tgz')\
             .with_ensure('present')\
-            .with_source('http://my_fileserver.example.com/aerospike/aerospike-server-enterprise-3.7.3-ubuntu14.04.tgz')\
+            .with_source('http://my_fileserver.example.com/aerospike/aerospike-server-enterprise-3.8.3-ubuntu14.04.tgz')\
             .with_extract(true)\
             .with_extract_path('/usr/local/src')\
-            .with_creates('/usr/local/src/aerospike-server-enterprise-3.7.3-ubuntu14.04')\
+            .with_creates('/usr/local/src/aerospike-server-enterprise-3.8.3-ubuntu14.04')\
             .with_cleanup(false)
         end
 
@@ -78,7 +78,7 @@ describe 'aerospike' do
       # #####################################################################
       describe "aerospike class with all parameters (except custom url) on #{osfamily}" do
         let(:params) {{
-          :version        => '3.7.3',
+          :version        => '3.8.3',
           :download_dir   => '/tmp',
           :remove_archive => true,
           :edition        => 'enterprise',
@@ -186,14 +186,14 @@ describe 'aerospike' do
 
         # Tests related to the aerospike::install class
         it do
-          is_expected.to contain_archive('/tmp/aerospike-server-enterprise-3.7.3-ubuntu12.04.tgz')\
+          is_expected.to contain_archive('/tmp/aerospike-server-enterprise-3.8.3-ubuntu12.04.tgz')\
             .with_ensure('present')\
-            .with_source('http://www.aerospike.com/artifacts/aerospike-server-enterprise/3.7.3/aerospike-server-enterprise-3.7.3-ubuntu12.04.tgz')\
+            .with_source('http://www.aerospike.com/artifacts/aerospike-server-enterprise/3.8.3/aerospike-server-enterprise-3.8.3-ubuntu12.04.tgz')\
             .with_username('dummy_user')\
             .with_password('dummy_password')\
             .with_extract(true)\
             .with_extract_path('/tmp')\
-            .with_creates('/tmp/aerospike-server-enterprise-3.7.3-ubuntu12.04')\
+            .with_creates('/tmp/aerospike-server-enterprise-3.8.3-ubuntu12.04')\
             .with_cleanup(true)
         end
 
@@ -364,6 +364,53 @@ describe 'aerospike' do
             .with_content(/^\s*datacenter DC2 {$/)\
             .with_content(/^\s*dc-node-address-port 172.2.2.100 3000$/)
         end
+      end
+
+      # #####################################################################
+      # Test for the manage_service set to false
+      # #####################################################################
+      describe 'manage_service set to false' do
+        let(:params) {{
+          :manage_service => false,
+        }}
+        let(:facts) {{
+          :osfamily => osfamily,
+        }}
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('aerospike::install').that_comes_before('Class[aerospike::config]') }
+        it { is_expected.to contain_class('aerospike::config').that_comes_before('Class[aerospike::service]') }
+        it { is_expected.to contain_class('aerospike::service') }
+        # the service should not subscribe to the config but should be present
+        it { is_expected.not_to contain_class('aerospike::service').that_subscribes_to('Class[aerospike::config]') }
+
+        it { is_expected.not_to contain_service('aerospike') }
+        # We still manage the config file
+        it { is_expected.to create_file('/etc/aerospike/aerospike.conf') }
+      end
+
+      # #####################################################################
+      # Test for the restart_on_config_change set to false
+      # #####################################################################
+      describe 'restart_on_config_change set to false' do
+        let(:params) {{
+          :restart_on_config_change => false,
+        }}
+        let(:facts) {{
+          :osfamily => osfamily,
+        }}
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('aerospike::install').that_comes_before('Class[aerospike::config]') }
+        it { is_expected.to contain_class('aerospike::config').that_comes_before('Class[aerospike::service]') }
+        it { is_expected.to contain_class('aerospike::service') }
+        # the service should not subscribe to the config but should be present
+        it { is_expected.not_to contain_class('aerospike::service').that_subscribes_to('Class[aerospike::config]') }
+
+        # That's the big difference compared to manage_service
+        it { is_expected.to contain_service('aerospike') }
+        # We still manage the config file
+        it { is_expected.to create_file('/etc/aerospike/aerospike.conf') }
       end
     end
   end

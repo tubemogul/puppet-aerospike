@@ -20,9 +20,10 @@
     * [Configuring a rack-aware cluster](#configuring-a-rack-aware-cluster)
     * [Defining credentials for XDR](#defining-credentials-for-xdr)
     * [Full real-life multi-datacenter replication example for XDR with security enabled](#full-real-life-multi-datacenter-replication-example-for-xdr-with-security-enabled)
+    * [Not restarting the service](#not-restarting-the-service)
 5. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
     * [Public classes](#public-classes)
-    * [Private classes](#private-classes)
+    * [Private classes and defines](#private-classes-and-defines)
     * [Parameters](#parameters)
 5. [Limitations - OS compatibility, etc.](#limitations)
 6. [Development - Guide for contributing to the module](#development)
@@ -57,7 +58,7 @@ What is this module capable of doing?
 
 Files managed by the module:
 
-* /etc/aerospike/aerospike.conf
+* `/etc/aerospike/aerospike.conf`
 
 ### Setup Requirements
 
@@ -93,12 +94,12 @@ copy/paste of a full configuration when you have both - yes, I'm lazy ;-) ).
 
 ### Using the aerospike enterprise version
 
-In this example you will setup an installation of an aerospike server 3.7.3
+In this example you will setup an installation of an aerospike server 3.8.3
 enterprise version using the default namespace:
 
 ```puppet
 class { 'aerospike':
-  $version       => '3.7.3',
+  $version       => '3.8.3',
   $edition       => 'enterprise',
   $download_user => 'myuser',
   $download_pass => 'mypassword',
@@ -110,7 +111,7 @@ in hiera (of course, you use eyaml and encrypt your password with it! ;-) ):
 
 ```yaml
 ---
-aerospike::version: 3.7.3
+aerospike::version: 3.8.3
 aerospike::edition: enterprise
 aerospike::download_user: myuser
 aerospike::download_pass: mypassword
@@ -515,17 +516,68 @@ instead of an array for the `xdr-remote-datacenter` parameter:
     xdr-remote-datacenter: DC1
 ```
 
+### Not restarting the service
+
+There are 2 solutions for that. The most common usage for that would be the 1st
+solution proposed.
+
+#### Not restarting when a config is changed
+
+To still having puppet start or stop the service as you defined but not restart
+the service when a configuration is changed, set the `restart_on_config_change` parameter to `false`.
+
+This is the method you will want to choose if you are changing dynamic
+parameters with the `asinfo` or `asadm` command-line tools and that you change
+the config file just to avoid problems on next restart.
+
+Note that this won't restart the service when credentials are modified either.
+
+```puppet
+class { 'aerospike':
+  $restart_on_config_change => true,
+}
+```
+
+Or via hiera:
+
+```yaml
+aerospike:
+  restart_on_config_change: false
+```
+
+#### Not managing the service with puppet at all
+
+To do that you define the `manage_service` parameter to `false` but keep in mind
+that if there's a problem and the service goes down, puppet won't restart it.
+
+Puppet won't restart the service if there's a config change either.
+
+```puppet
+class { 'aerospike':
+  $manage_service => true,
+}
+```
+
+Or via hiera:
+
+```yaml
+aerospike:
+  manage_service: false
+```
+
+
 ## Reference
 
 ### Public classes
 
  * [`aerospike`](#class-aerospike): Installs and configures Aerospike server and the management console.
 
-### Private classes
+### Private classes and defines
 
  * `aerospike::install`: Installs Aerospike server and the management console.
  * `aerospike::config`: Configures Aerospike server and the management console.
  * `aerospike::service`: Manages the Aerospike server and the management console services.
+ * `aerospike::xdr_credentials_file`: manages the credential files for xdr.
 
 
 ### Parameters
@@ -536,7 +588,7 @@ instead of an array for the `xdr-remote-datacenter` parameter:
 
 Version of the aerospike database engine to install.
 
-Default: `3.7.2`
+Default: `3.8.3`
 
 ##### `download_dir`
 
@@ -619,6 +671,26 @@ Default: `root`
 GID of the OS user to be used by the service.
 
 Default: `0`
+
+##### `manage_service`
+
+Boolean indicating whether you want to manage the service status or not.
+If set to false, the `service_status` parameter will be ignored but the service
+will still be configured.
+
+Default: `true`
+
+##### `restart_on_config_change`
+
+Boolean indicating whether or not you want to restart the aerospike service
+whenever there's a change in the configuration files or credential files.
+
+Note that it is different from `manage_service` because the service will still
+be managed by puppet if you set it to `false` (as long as `manage_service` is set
+to `true`), so if the service goes down, puppet will still take care of
+restarting it.
+
+Default: `true`
 
 ##### `config_service`
 
