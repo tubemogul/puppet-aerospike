@@ -1,3 +1,12 @@
+2016-09-09 Release 1.2.0:
+FIXES:
+- Fixing documentation examples
+- Fixing Json_pure dependency problems in the gemfile for the puppet-spec tests
+- Fixing declaration of multi-datacenter replication inside namespaces
+- The puppet/archive module has been test to work n version 1.*
+NEW FEATURES:
+- Adding ways to not manage the service and not restart on config change
+- Add examples in the documentation
 2016-07-27 Release 1.1.2:
 - added fix on AMC upgrade and dependencies
 2016-07-19 Release 1.1.1:
