@@ -99,10 +99,10 @@ enterprise version using the default namespace:
 
 ```puppet
 class { 'aerospike':
-  $version       => '3.8.3',
-  $edition       => 'enterprise',
-  $download_user => 'myuser',
-  $download_pass => 'mypassword',
+  version       => '3.8.3',
+  edition       => 'enterprise',
+  download_user => 'myuser',
+  download_pass => 'mypassword',
 }
 ```
 
@@ -128,7 +128,7 @@ ssd devices) containing a hahaha set protected from eviction:
 
 ```puppet
 class { 'aerospike':
-  $config_ns = {
+  config_ns => {
     'bar'                  => {
       'replication-factor' => 2,
       'memory-size'        => '10G',
@@ -188,8 +188,8 @@ To install and the management console and have the service managed by puppet, us
 
 ```puppet
 class { 'aerospike':
-  $amc_install        => true,
-  $amc_manage_service => true,
+  amc_install        => true,
+  amc_manage_service => true,
 }
 ```
 
@@ -213,7 +213,7 @@ In this example, the servers IP are 192.168.1.100, 192.168.1.101 and 192.168.1.1
 
 ```puppet
 class { 'aerospike':
-  $config_service => {
+  config_service => {
     'paxos-single-replica-limit'    => 1,
     'pidfile'                       => '/var/run/aerospike/asd.pid',
     'service-threads'               => 4,
@@ -223,7 +223,7 @@ class { 'aerospike':
     'paxos-protocol'                => 'v4',
     'paxos-recovery-policy'         => 'auto-reset-master',
   },
-  $config_net_hb => {
+  config_net_hb => {
     'mode'                                 => 'mesh',
     'address'                              => 'any',
     'port'                                 => 3002,
@@ -233,7 +233,7 @@ class { 'aerospike':
     'interval'                             => 150,
     'timeout'                              => 20,
   },
-  $config_cluster => {
+  config_cluster => {
     'mode'          => 'dynamic',
     'self-group-id' => 666,
   },
@@ -274,7 +274,7 @@ To define credentials of remote cluster(s) for XDR in a separate secured file
 
 ```puppet
 class { 'aerospike':
-  $config_xdr_credentials => {"DC1"=>{"username"=>"xdr_user_DC1", "password"=>"xdr_password_DC1"}},
+  config_xdr_credentials => {"DC1"=>{"username"=>"xdr_user_DC1", "password"=>"xdr_password_DC1"}},
 }
 ```
 
@@ -298,8 +298,8 @@ Of course, IP and other security-sensitive informations here are fake or removed
 
 ```puppet
 class { 'aerospike':
-  $version        => '3.8.4',
-  $config_service => {
+  version        => '3.8.4',
+  config_service => {
     'paxos-single-replica-limit'    => 1,
     'pidfile'                       => '/var/run/aerospike/asd.pid',
     'service-threads'               => 4,
@@ -310,10 +310,10 @@ class { 'aerospike':
     'paxos-recovery-policy'         => 'auto-reset-master',
     'migrate-threads'               => 2,
   },
-  $config_logging => {
+  config_logging => {
     '/var/logs/aerospike.log' => [ 'any info' ],
   },
-  $config_net_hb => {
+  config_net_hb => {
     'mode'                              => 'mesh',
     'address'                           => 'any',
     'port'                              => 3002,
@@ -340,11 +340,11 @@ class { 'aerospike':
     'interval'                          => 150,
     'timeout'                           => 20,
   },
-  $config_cluster => {
+  config_cluster => {
     'mode'          => 'dynamic',
     'self-group-id' => 666,
   },
-  $config_ns => {
+  config_ns => {
     'replicatedns'          => {
     'enable-xdr'            => 'true',
     'xdr-remote-datacenter' => [ 'DC1', 'DC2' ],
@@ -363,10 +363,10 @@ class { 'aerospike':
       ],
     },
   },
-  $config_sec => {
+  config_sec => {
     'enable-security' => 'true',
   },
-  $config_xdr => {
+  config_xdr => {
     'enable-xdr' => 'true',
     'xdr-digestlog-path' => '/mnt/aerospike-digestlog 100G',
     'xdr-ship-bins' => 'true',
@@ -382,7 +382,7 @@ class { 'aerospike':
       'dc-use-alternate-services true',
       'dc-security-config-file /etc/aerospike/security-credentials_DC1.txt'
     ],
-    'datacenter DC2':
+    'datacenter DC2' => [
       'dc-node-address-port 193.168.2.100 3000',
       'dc-node-address-port 192.168.2.102 3000',
       'dc-node-address-port 192.168.2.103 3000',
@@ -395,7 +395,7 @@ class { 'aerospike':
       'dc-security-config-file /etc/aerospike/security-credentials_DC2.txt'
     ],
   },
-  $config_xdr_credentials => {
+  config_xdr_credentials => {
     'DC1' => {
       'username' => 'svc_xdr_dc1',
       'password' => 'password_encrypted_with_eyaml_goes_there',
@@ -534,7 +534,7 @@ Note that this won't restart the service when credentials are modified either.
 
 ```puppet
 class { 'aerospike':
-  $restart_on_config_change => true,
+  restart_on_config_change => false,
 }
 ```
 
@@ -554,7 +554,7 @@ Puppet won't restart the service if there's a config change either.
 
 ```puppet
 class { 'aerospike':
-  $manage_service => true,
+  manage_service => false,
 }
 ```
 
@@ -997,7 +997,7 @@ package to be downloaded from somewhere else than the aerospike website.
 
 **Note:** It is mandatory to keep the name of the target file set to the
 same pattern as the original name when using this custom url aka:
-aerospike-amc-${aerospike::edition}-${amc_version}${amc_pkg_extension}
+`aerospike-amc-${aerospike::edition}-${amc_version}${amc_pkg_extension}`
 
 The default url is:
 
@@ -1079,58 +1079,6 @@ namespace foo {
     file /data/aerospike/data2.dat
     filesize 10G
   }
-}
-```
-
-Example of an aerospike installation with 2 namespaces and a replication to 2
-datacenters and a configuration of a security context:
-
-```
-class { 'aerospike':
-  $config_ns = {
-    'bar'                  => {
-      'replication-factor' => 2,
-      'memory-size'        => '10G',
-      'default-ttl'        => '30d',
-      'storage-engine'     => 'memory',
-    },
-    'foo'                     => {
-      'replication-factor'    => 2,
-      'memory-size'           => '1G',
-      'storage-engine device' => [
-        'file /data/aerospike/foo.dat',
-        'filesize 10G',
-        'data-in-memory false',
-      ]
-    },
-  },
-  $config_sec                  => {
-    'privilege-refresh-period' => 500,
-    'syslog'                   => [
-      'local 0',
-      'report-user-admin true',
-      'report-authentication true',
-      'report-data-op foo true',
-    ],
-    'log'                   => [
-      'report-violation true',
-    ],
-  },
-  $config_xdr            => {
-    'enable-xdr'         => true,
-    'xdr-namedpipe-path' => '/tmp/xdr_pipe',
-    'xdr-digestlog-path' => '/opt/aerospike/digestlog 100G',
-    'xdr-errorlog-path'  => '/var/log/aerospike/asxdr.log',
-    'xdr-pidfile'        => '/var/run/aerospike/asxdr.pid',
-    'local-node-port'    => 3000,
-    'xdr-info-port'      => 3004,
-    'datacenter DC1'     => [
-      'dc-node-address-port 172.68.17.123 3000',
-    ],
-    'datacenter DC2'     => [
-      'dc-node-address-port 172.68.39.123 3000',
-    ],
-  },
 }
 ```
 
