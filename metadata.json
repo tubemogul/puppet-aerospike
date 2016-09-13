@@ -1,6 +1,6 @@
 {
   "name": "TubeMogul-aerospike",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": "TubeMogul Inc.",
   "summary": "Aerospike servers management via Puppet",
   "license": "Apache-2.0",

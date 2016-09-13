@@ -1,3 +1,6 @@
+2016-09-13 Release 1.2.1:
+FIXES:
+- Fix incorrect configuration generation when using multiple XDR targets for a namespace
 2016-09-09 Release 1.2.0:
 FIXES:
 - Fixing documentation examples
