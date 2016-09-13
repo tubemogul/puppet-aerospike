@@ -68,9 +68,9 @@ namespace <%= ns %> {
   <%= item_k %> {
 <%     item_v.sort.each do |prop| -%>
     <%= prop %>
-<%     end
-    end -%>
+<%     end -%>
   }
+<%   end -%>
 <%     else -%>
   <%= item_k %> <%= item_v %>
 <%     end
