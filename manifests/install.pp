@@ -72,7 +72,7 @@ class aerospike::install {
         $bcrypt_os_packages  = ['build-essential', 'python-dev', 'libffi-dev']
       }
       'RedHat': {
-        $amc_pkg_extension = '-el5.x86_64.rpm'
+        $amc_pkg_extension = "-${aerospike::target_os_tag}.x86_64.rpm"
         $amc_pkg_provider = 'rpm'
         $amc_extract = false
         $amc_target_archive = "${aerospike::amc_download_dir}/aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
