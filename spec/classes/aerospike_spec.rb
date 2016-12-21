@@ -281,6 +281,7 @@ describe 'aerospike' do
         it do
           should contain_service('aerospike')\
             .with_ensure('stopped')\
+            .with_enable(true)\
             .with_hasrestart(true)\
             .with_hasstatus(true)\
             .with_provider('init')
@@ -420,7 +421,7 @@ describe 'aerospike' do
       # Here we enforce only the amc_version as this test would be useless if we
       # change the defautl version.
 			describe "aerospike class without any parameters on #{osfamily}" do
-				let(:params) {{  
+				let(:params) {{
 					:amc_version => '3.6.6',
         }}
 				let(:facts) {{
@@ -489,6 +490,7 @@ describe 'aerospike' do
         it do
           should contain_service('amc')\
             .with_ensure('stopped')\
+            .with_enable(true)\
             .with_hasrestart(true)\
             .with_hasstatus(true)\
             .with_provider('init')

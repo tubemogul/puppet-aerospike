@@ -69,12 +69,14 @@ class aerospike (
   $config_xdr             = {},
   $config_xdr_credentials = {},
   $service_status         = 'running',
+  $service_enable         = true,
   $amc_install            = false,
   $amc_version            = '3.6.6',
   $amc_download_dir       = '/usr/local/src',
   $amc_download_url       = undef,
   $amc_manage_service     = false,
   $amc_service_status     = 'running',
+  $amc_service_enable     = true,
 ) {
 
   validate_string(
@@ -90,11 +92,13 @@ class aerospike (
     $amc_service_status,
   )
   validate_bool(
-    $remove_archive,
     $amc_install,
     $amc_manage_service,
+    $amc_service_enable,
     $manage_service,
+    $remove_archive,
     $restart_on_config_change,
+    $service_enable,
   )
   validate_hash(
     $config_service,
