@@ -30,11 +30,26 @@ class aerospike::install {
     extract_path => $aerospike::download_dir,
     creates      => $dest,
     cleanup      => $aerospike::remove_archive,
-  } ~>
-  exec { 'aerospike-install-server':
-    command     => "${dest}/asinstall",
-    cwd         => $dest,
-    refreshonly => true,
+    notify       => Exec['aerospike-install-server'],
+  }
+
+  case $::osfamily {
+    'Debian': {
+      exec { 'aerospike-install-server':
+        command     => "${dest}/asinstall --force-confold",
+        cwd         => $dest,
+        refreshonly => true,
+        require     => Archive["${dest}.tgz"],
+      }
+    }
+    default : {
+      exec { 'aerospike-install-server':
+        command     => "${dest}/asinstall",
+        cwd         => $dest,
+        refreshonly => true,
+        require     => Archive["${dest}.tgz"],
+      }
+    }
   }
 
   # #######################################
