@@ -11,7 +11,7 @@ class aerospike::service {
       enable     => $aerospike::service_enable,
       hasrestart => true,
       hasstatus  => true,
-      provider   => 'init',
+      provider   => $aerospike::service_provider,
     }
   }
 
@@ -21,7 +21,7 @@ class aerospike::service {
       enable     => $aerospike::amc_service_enable,
       hasrestart => true,
       hasstatus  => true,
-      provider   => 'init',
+      provider   => $aerospike::service_provider,
     }
   }
 }
