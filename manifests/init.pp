@@ -17,9 +17,9 @@ class aerospike (
   $download_user            = undef,
   $download_pass            = undef,
   $system_user              = 'root',
-  $system_uid               = 0,
+  $system_uid               = undef,
   $system_group             = 'root',
-  $system_gid               = 0,
+  $system_gid               = undef,
   $manage_service           = true,
   $restart_on_config_change = true,
   $config_service           = {
@@ -115,8 +115,8 @@ class aerospike (
     $config_xdr,
     $config_xdr_credentials,
   )
-  if ! is_integer($system_uid) { fail("invalid ${system_uid} provided") }
-  if ! is_integer($system_gid) { fail("invalid ${system_gid} provided") }
+  if $system_uid and ! is_integer($system_uid) { fail("invalid ${system_uid} provided") }
+  if $system_gid and ! is_integer($system_gid) { fail("invalid ${system_gid} provided") }
 
   include '::aerospike::install'
   include '::aerospike::config'
