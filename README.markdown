@@ -656,7 +656,7 @@ Default: `root`
 
 UID of the OS user to be used by the service.
 
-Default: `0`
+Default: `undef` (number is assigned by the OS)
 
 ##### `system_group`
 
@@ -670,7 +670,7 @@ Default: `root`
 
 GID of the OS user to be used by the service.
 
-Default: `0`
+Default: `undef` (number is assigned by the OS)
 
 ##### `manage_service`
 
