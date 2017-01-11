@@ -66,7 +66,8 @@ describe 'aerospike' do
             .with_extract(true)\
             .with_extract_path('/usr/local/src')\
             .with_creates('/usr/local/src/aerospike-server-enterprise-3.8.3-ubuntu14.04')\
-            .with_cleanup(false)
+            .with_cleanup(false)\
+            .that_notifies('Exec[aerospike-install-server]')
         end
 
         it { is_expected.to contain_exec('aerospike-install-server') }
@@ -195,7 +196,8 @@ describe 'aerospike' do
             .with_extract(true)\
             .with_extract_path('/tmp')\
             .with_creates('/tmp/aerospike-server-enterprise-3.8.3-ubuntu12.04')\
-            .with_cleanup(true)
+            .with_cleanup(true)\
+            .that_notifies('Exec[aerospike-install-server]')
         end
 
         it { is_expected.to contain_exec('aerospike-install-server') }
