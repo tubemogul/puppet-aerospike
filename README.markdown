@@ -680,6 +680,12 @@ will still be configured.
 
 Default: `true`
 
+##### `service_provider`
+
+String defining mechanism for managing service. See [Puppet docs](https://docs.puppet.com/puppet/latest/types/service.html#service-attribute-provider) for supported values.
+
+Default: `undef` (Puppet will determine appropriate value)
+
 ##### `restart_on_config_change`
 
 Boolean indicating whether or not you want to restart the aerospike service
@@ -949,7 +955,7 @@ http://www.aerospike.com/docs/operations/configure/cross-datacenter/
 ##### `config_xdr_credentials`
 
 Configuration parameters to define the xdr credentials (user/password) for the remote cluster in the
-separate secured file when security enabled. 
+separate secured file when security enabled.
 
 This parameter is a hash table with:
   * the property name as key
