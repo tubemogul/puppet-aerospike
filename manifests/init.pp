@@ -16,6 +16,7 @@ class aerospike (
   $target_os_tag            = 'ubuntu14.04',
   $download_user            = undef,
   $download_pass            = undef,
+  $asinstall_params         = undef,
   $system_user              = 'root',
   $system_uid               = 0,
   $system_group             = 'root',

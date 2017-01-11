@@ -21,6 +21,16 @@ class aerospike::install {
   }
   $dest = "${aerospike::download_dir}/aerospike-server-${aerospike::edition}-${aerospike::version}-${aerospike::target_os_tag}"
 
+  if $aerospike::asinstall_params {
+    $_asinstall_param = $aerospike::asinstall_params
+  } else {
+    $_asinstall_param = $::osfamily ? {
+      'Debian' => "--force-confold -i",
+      'RedHat' => "-Uvh",
+      default => "",
+    }
+  }
+
   archive { "${dest}.tgz":
     ensure       => present,
     source       => $src,
@@ -30,27 +40,13 @@ class aerospike::install {
     extract_path => $aerospike::download_dir,
     creates      => $dest,
     cleanup      => $aerospike::remove_archive,
-    notify       => Exec['aerospike-install-server'],
+  } ~>
+  exec { 'aerospike-install-server':
+    command     => "${dest}/asinstall",
+    cwd         => $dest,
+    refreshonly => true,
   }
 
-  case $::osfamily {
-    'Debian': {
-      exec { 'aerospike-install-server':
-        command     => "${dest}/asinstall --force-confold -i",
-        cwd         => $dest,
-        refreshonly => true,
-        require     => Archive["${dest}.tgz"],
-      }
-    }
-    default : {
-      exec { 'aerospike-install-server':
-        command     => "${dest}/asinstall",
-        cwd         => $dest,
-        refreshonly => true,
-        require     => Archive["${dest}.tgz"],
-      }
-    }
-  }
 
   # #######################################
   # Defining the system user and group the service will be configured on
