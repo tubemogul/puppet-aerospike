@@ -36,7 +36,7 @@ class aerospike::install {
   case $::osfamily {
     'Debian': {
       exec { 'aerospike-install-server':
-        command     => "${dest}/asinstall --force-confold",
+        command     => "${dest}/asinstall --force-confold -i",
         cwd         => $dest,
         refreshonly => true,
         require     => Archive["${dest}.tgz"],
