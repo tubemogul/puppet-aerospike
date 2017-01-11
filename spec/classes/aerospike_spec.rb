@@ -78,17 +78,18 @@ describe 'aerospike' do
       # #####################################################################
       describe "aerospike class with all parameters (except custom url) on #{osfamily}" do
         let(:params) {{
-          :version        => '3.8.3',
-          :download_dir   => '/tmp',
-          :remove_archive => true,
-          :edition        => 'enterprise',
-          :target_os_tag  => 'ubuntu12.04',
-          :download_user  => 'dummy_user',
-          :download_pass  => 'dummy_password',
-          :system_user    => 'as_user',
-          :system_uid     => 511,
-          :system_group   => 'as_group',
-          :system_gid     => 512,
+          :version          => '3.8.3',
+          :download_dir     => '/tmp',
+          :remove_archive   => true,
+          :edition          => 'enterprise',
+          :target_os_tag    => 'ubuntu12.04',
+          :download_user    => 'dummy_user',
+          :download_pass    => 'dummy_password',
+          :system_user      => 'as_user',
+          :system_uid       => 511,
+          :system_group     => 'as_group',
+          :system_gid       => 512,
+          :service_provider => 'init',
           :config_service => {
             'paxos-single-replica-limit'    => 2,
             'pidfile'                       => '/run/aerospike/asd.pid',
@@ -442,7 +443,8 @@ describe 'aerospike' do
       # change the defautl version.
 			describe "aerospike class without any parameters on #{osfamily}" do
 				let(:params) {{
-					:amc_version => '3.6.6',
+					:amc_version      => '3.6.6',
+          :service_provider => 'init',
         }}
 				let(:facts) {{
 					:osfamily => osfamily,
@@ -516,8 +518,7 @@ describe 'aerospike' do
             .with_ensure('stopped')\
             .with_enable(true)\
             .with_hasrestart(true)\
-            .with_hasstatus(true)\
-            .with_provider('init')
+            .with_hasstatus(true)
         end
 			end
 		end
