@@ -21,6 +21,6 @@ group :development do
 end
 
 group :development, :system_tests do
-  gem "beaker"
+  gem 'beaker', '< 3' if RUBY_VERSION < '2.2.5'
   gem "beaker-rspec"
 end

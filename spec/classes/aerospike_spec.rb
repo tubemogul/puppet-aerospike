@@ -413,6 +413,26 @@ describe 'aerospike' do
         # We still manage the config file
         it { is_expected.to create_file('/etc/aerospike/aerospike.conf') }
       end
+
+      describe 'allow changing service provider' do
+        let(:params) {{
+          :service_provider => 'systemd',
+        }}
+        let(:facts) {{
+          :osfamily => osfamily,
+        }}
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('aerospike::install').that_comes_before('Class[aerospike::config]') }
+        it { is_expected.to contain_class('aerospike::config').that_comes_before('Class[aerospike::service]') }
+        it { is_expected.to contain_class('aerospike::service') }
+
+        it { is_expected.to contain_service('aerospike')
+             .with_hasrestart(true)\
+             .with_hasstatus(true)\
+             .with_provider('systemd')
+        }
+      end
     end
   end
 
@@ -437,7 +457,11 @@ describe 'aerospike' do
 				# Tests related to the aerospike::config class
 
 				# Tests related to the aerospike::service class
-				it { is_expected.to_not contain_service('amc') }
+        it { is_expected.to_not contain_service('amc') }
+				it { is_expected.to contain_service('aerospike').with_hasrestart(true)\
+            .with_hasstatus(true)\
+            .with_provider('init')
+        }
 			end
 
 			describe "aerospike class with all amc-related parameters on #{osfamily}" do
