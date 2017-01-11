@@ -70,7 +70,7 @@ class aerospike (
   $config_xdr_credentials = {},
   $service_status         = 'running',
   $service_enable         = true,
-  $service_provider       = 'init',
+  $service_provider       = undef,
   $amc_install            = false,
   $amc_version            = '3.6.6',
   $amc_download_dir       = '/usr/local/src',
@@ -88,7 +88,6 @@ class aerospike (
     $system_user,
     $system_group,
     $service_status,
-    $service_provider,
     $amc_version,
     $amc_download_dir,
     $amc_service_status,
@@ -115,6 +114,7 @@ class aerospike (
     $config_xdr,
     $config_xdr_credentials,
   )
+  if $service_provider { validate_string($service_provider) }
   if ! is_integer($system_uid) { fail("invalid ${system_uid} provided") }
   if ! is_integer($system_gid) { fail("invalid ${system_gid} provided") }
 
