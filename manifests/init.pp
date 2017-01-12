@@ -13,7 +13,7 @@ class aerospike (
   $download_url             = undef,
   $remove_archive           = false,
   $edition                  = 'community',
-  $target_os_tag            = 'ubuntu14.04',
+  $target_os_tag            = $::aerospike::params::target_os_tag,
   $download_user            = undef,
   $download_pass            = undef,
   $asinstall_params         = undef,
@@ -79,7 +79,7 @@ class aerospike (
   $amc_manage_service     = false,
   $amc_service_status     = 'running',
   $amc_service_enable     = true,
-) {
+) inherits ::aerospike::params {
 
   validate_string(
     $version,
