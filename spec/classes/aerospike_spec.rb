@@ -56,6 +56,7 @@ describe 'aerospike' do
         let(:facts) {{
           :osfamily => osfamily,
         }}
+        let(:target_dir) { '/usr/local/src/aerospike-server-enterprise-3.8.3-ubuntu14.04' }
 
         it { should compile.with_all_deps }
 
@@ -65,12 +66,13 @@ describe 'aerospike' do
             .with_source('http://my_fileserver.example.com/aerospike/aerospike-server-enterprise-3.8.3-ubuntu14.04.tgz')\
             .with_extract(true)\
             .with_extract_path('/usr/local/src')\
-            .with_creates('/usr/local/src/aerospike-server-enterprise-3.8.3-ubuntu14.04')\
+            .with_creates(target_dir)\
             .with_cleanup(false)\
             .that_notifies('Exec[aerospike-install-server]')
         end
 
-        it { is_expected.to contain_exec('aerospike-install-server') }
+        it { is_expected.to contain_exec('aerospike-install-server')
+          .with_command("#{target_dir}/asinstall --force-confold -i") }
 
       end
 
@@ -177,6 +179,7 @@ describe 'aerospike' do
         let(:facts) {{
           :osfamily => osfamily,
         }}
+        let(:target_dir) { '/tmp/aerospike-server-enterprise-3.8.3-ubuntu12.04' }
 
         it { should compile.with_all_deps }
 
@@ -195,12 +198,13 @@ describe 'aerospike' do
             .with_password('dummy_password')\
             .with_extract(true)\
             .with_extract_path('/tmp')\
-            .with_creates('/tmp/aerospike-server-enterprise-3.8.3-ubuntu12.04')\
+            .with_creates(target_dir)\
             .with_cleanup(true)\
             .that_notifies('Exec[aerospike-install-server]')
         end
 
-        it { is_expected.to contain_exec('aerospike-install-server') }
+        it { is_expected.to contain_exec('aerospike-install-server')
+          .with_command("#{target_dir}/asinstall --force-confold -i") }
 
         it do
           is_expected.to contain_user('as_user')\
@@ -391,6 +395,25 @@ describe 'aerospike' do
         it { is_expected.not_to contain_service('aerospike') }
         # We still manage the config file
         it { is_expected.to create_file('/etc/aerospike/aerospike.conf') }
+      end
+
+      describe 'allow modifying asinstall parameters' do
+        let(:params) {{
+          :asinstall_params => '--force-confnew -i',
+        }}
+        let(:facts) {{
+          :osfamily => osfamily,
+        }}
+
+        let(:target_dir) { '/usr/local/src/aerospike-server-community-3.8.4-ubuntu14.04' }
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('aerospike::install').that_comes_before('Class[aerospike::config]') }
+        it { is_expected.to contain_class('aerospike::config').that_comes_before('Class[aerospike::service]') }
+        it { is_expected.to create_file('/etc/aerospike/aerospike.conf') }
+
+        it { is_expected.to contain_exec('aerospike-install-server')
+          .with_command("#{target_dir}/asinstall --force-confnew -i") }
       end
 
       # #####################################################################

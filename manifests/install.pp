@@ -22,9 +22,9 @@ class aerospike::install {
   $dest = "${aerospike::download_dir}/aerospike-server-${aerospike::edition}-${aerospike::version}-${aerospike::target_os_tag}"
 
   if $aerospike::asinstall_params {
-    $_asinstall_param = $aerospike::asinstall_params
+    $_asinstall_params = $aerospike::asinstall_params
   } else {
-    $_asinstall_param = $::osfamily ? {
+    $_asinstall_params = $::osfamily ? {
       'Debian' => "--force-confold -i",
       'RedHat' => "-Uvh",
       default => "",
@@ -42,7 +42,7 @@ class aerospike::install {
     cleanup      => $aerospike::remove_archive,
   } ~>
   exec { 'aerospike-install-server':
-    command     => "${dest}/asinstall",
+    command     => "${dest}/asinstall ${_asinstall_params}",
     cwd         => $dest,
     refreshonly => true,
   }
