@@ -110,3 +110,10 @@ xdr {
 }
 <% end -%>
 
+<% unless scope.lookupvar('aerospike::config_mod_lua').empty? -%>
+mod-lua {
+<% scope.lookupvar('aerospike::config_mod_lua').sort.each do |item_k,item_v| -%>
+  <%= item_k %> <%= item_v %>
+<% end -%>
+}
+<% end -%>
