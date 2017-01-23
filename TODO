@@ -1,5 +1,4 @@
 Adding the lua Mod support:
- * in aerospike.conf: mod-lua context => https://github.com/aerospike/aerospike-mod-lua (optionnal)
  * in the installation manifest
 
 Config manifest:

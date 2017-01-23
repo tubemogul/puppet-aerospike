@@ -34,6 +34,7 @@ class aerospike (
   $config_logging = {
     '/var/log/aerospike/aerospike.log' => [ 'any info', ],
   },
+  $config_mod_lua = {},
   $config_net_svc = {
     'address' => 'any',
     'port'    => 3000,
@@ -105,6 +106,7 @@ class aerospike (
   validate_hash(
     $config_service,
     $config_logging,
+    $config_mod_lua,
     $config_net_svc,
     $config_net_fab,
     $config_net_inf,

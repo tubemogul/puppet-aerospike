@@ -183,6 +183,9 @@ describe 'aerospike' do
             'dc-node-address-port 172.68.17.123 3000',
           ],
         },
+        :config_mod_lua => {
+          'user-path' => '/opt/aerospike/usr/udf/lua',
+        },
         :service_status => 'stopped',
       }}
       let(:facts) {{
@@ -302,6 +305,8 @@ describe 'aerospike' do
           .with_content(/^\s*xdr-info-port 3004$/)\
           .with_content(/^\s*datacenter DC1 {$/)\
           .with_content(/^\s*dc-node-address-port 172.68.17.123 3000$/)
+          .with_content(/^\s*mod-lua {$/)
+          .with_content(/^\s*user-path \/opt\/aerospike\/usr\/udf\/lua$/)
       end
 
       # Tests related to the aerospike::service class

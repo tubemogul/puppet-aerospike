@@ -771,6 +771,29 @@ logging {
 For more information about logging management in aerospike, check:
 http://www.aerospike.com/docs/operations/configure/log/
 
+
+##### `config_mod_lua`
+
+Configuration parameters for `mod-lua` context.
+
+This parameter is a hash which is empty by default.
+
+```
+{
+  'config_mod_lua' => {
+    'user-path' => '/opt/aerospike/usr/udf/lua'
+  },
+}
+```
+
+Which generates the following configuration for the `mod-lua` context:
+
+```
+mod-lua {
+    user-path /opt/aerospike/usr/udf/lua
+}
+```
+
 ##### `config_net_svc`
 
 Configuration parameters to define in the service sub-stanza in the network
