@@ -10,9 +10,9 @@ describe 'aerospike' do
     describe "aerospike class without any parameters on #{osfamily}, #{dist} #{majrelease}" do
       let(:params) {{ }}
       let(:facts) {{
-        :osfamily => osfamily,
-        :operatingsystem => dist,
-        :operatingsystemmajrelease => majrelease,
+        osfamily: osfamily,
+        operatingsystem: dist,
+        operatingsystemmajrelease: majrelease,
       }}
 
       it { is_expected.to compile.with_all_deps }
@@ -50,14 +50,14 @@ describe 'aerospike' do
     # #####################################################################
     describe "aerospike class with custom url on #{osfamily}" do
       let(:params) {{
-        :version        => '3.8.3',
-        :download_url   => "http://my_fileserver.example.com/aerospike/aerospike-server-enterprise-3.8.3-#{expected_tag}.tgz",
-        :edition        => 'enterprise',
+        version: '3.8.3',
+        download_url: "http://my_fileserver.example.com/aerospike/aerospike-server-enterprise-3.8.3-#{expected_tag}.tgz",
+        edition: 'enterprise',
       }}
       let(:facts) {{
-        :osfamily => osfamily,
-        :operatingsystem => dist,
-        :operatingsystemmajrelease => majrelease,
+        osfamily: osfamily,
+        operatingsystem: dist,
+        operatingsystemmajrelease: majrelease,
       }}
       let(:target_dir) { "/usr/local/src/aerospike-server-enterprise-3.8.3-#{expected_tag}" }
 
@@ -91,18 +91,18 @@ describe 'aerospike' do
     # #####################################################################
     describe "aerospike class with all parameters (except custom url) on #{osfamily}, #{majrelease}" do
       let(:params) {{
-        :version          => '3.8.3',
-        :download_dir     => '/tmp',
-        :remove_archive   => true,
-        :edition          => 'enterprise',
-        :download_user    => 'dummy_user',
-        :download_pass    => 'dummy_password',
-        :system_user      => 'as_user',
-        :system_uid       => 511,
-        :system_group     => 'as_group',
-        :system_gid       => 512,
-        :service_provider => 'init',
-        :config_service => {
+        version: '3.8.3',
+        download_dir: '/tmp',
+        remove_archive:   true,
+        edition:          'enterprise',
+        download_user:    'dummy_user',
+        download_pass:    'dummy_password',
+        system_user:      'as_user',
+        system_uid:       511,
+        system_group:     'as_group',
+        system_gid:       512,
+        service_provider: 'init',
+        config_service: {
           'paxos-single-replica-limit'    => 2,
           'pidfile'                       => '/run/aerospike/asd.pid',
           'service-threads'               => 8,
@@ -111,24 +111,24 @@ describe 'aerospike' do
           'transaction-threads-per-queue' => 4,
           'proto-fd-max'                  => 20000,
         },
-        :config_logging => {
+        config_logging: {
           '/var/log/aerospike/aerospike.log' => [ 'any info', ],
           '/var/log/aerospike/aerospike.debug' => [ 'cluster debug', 'migrate debug', ],
         },
-        :config_net_svc => {
+        config_net_svc: {
           'address'        => 'any',
           'port'           => 4000,
           'access-address' => '192.168.1.100',
         },
-        :config_net_fab => {
+        config_net_fab: {
           'address' => 'any',
           'port'    => 4001,
         },
-        :config_net_inf => {
+        config_net_inf: {
           'address' => 'any',
           'port'    => 4003,
         },
-        :config_net_hb => {
+        config_net_hb: {
           'mode'                   => 'mesh',
           'address'                => '192.168.1.100',
           'mesh-seed-address-port 192.168.1.100' => '3002',
@@ -138,7 +138,7 @@ describe 'aerospike' do
           'interval'               => 150,
           'timeout'                => 10,
         },
-        :config_ns => {
+        config_ns: {
           'bar'                  => {
             'replication-factor' => 2,
             'memory-size'        => '10G',
@@ -155,11 +155,11 @@ describe 'aerospike' do
             ]
           },
         },
-        :config_cluster => {
+        config_cluster: {
           'mode' => 'dynamic',
           'self-group-id' => 201,
         },
-        :config_sec                  => {
+        config_sec: {
           'privilege-refresh-period' => 500,
           'syslog'                   => [
             'local 0',
@@ -171,7 +171,7 @@ describe 'aerospike' do
             'report-violation true',
           ],
         },
-        :config_xdr => {
+        config_xdr: {
           'enable-xdr' => true,
           'xdr-namedpipe-path' => '/tmp/xdr_pipe',
           'xdr-digestlog-path' => '/opt/aerospike/digestlog 100G',
@@ -183,15 +183,15 @@ describe 'aerospike' do
             'dc-node-address-port 172.68.17.123 3000',
           ],
         },
-        :config_mod_lua => {
+        config_mod_lua: {
           'user-path' => '/opt/aerospike/usr/udf/lua',
         },
-        :service_status => 'stopped',
+        service_status: 'stopped',
       }}
       let(:facts) {{
-        :osfamily => osfamily,
-        :operatingsystem => dist,
-        :operatingsystemmajrelease => majrelease,
+        osfamily: osfamily,
+        operatingsystem: dist,
+        operatingsystemmajrelease: majrelease,
       }}
 
       let(:target_dir) { "/tmp/aerospike-server-enterprise-3.8.3-#{expected_tag}" }
@@ -325,12 +325,12 @@ describe 'aerospike' do
     # #####################################################################
     describe "try create a file with XDR credentials - defined default params on #{osfamily}" do
       let(:params) {{
-        :config_xdr_credentials => {},
+        config_xdr_credentials: {},
       }}
       let(:facts) {{
-        :osfamily => osfamily,
-        :operatingsystem => dist,
-        :operatingsystemmajrelease => majrelease,
+        osfamily: osfamily,
+        operatingsystem: dist,
+        operatingsystemmajrelease: majrelease,
       }}
 
       # The details of the test of Aerospike::Xdr_credentials_file define are in
@@ -340,12 +340,12 @@ describe 'aerospike' do
 
     describe "create a file with XDR credentials on #{osfamily}" do
       let(:params) {{
-        :config_xdr_credentials => {"DC1"=>{"username"=>"xdr_user_DC1", "password"=>"xdr_password_DC1"}},
+        config_xdr_credentials: {"DC1"=>{"username"=>"xdr_user_DC1", "password"=>"xdr_password_DC1"}},
       }}
       let(:facts) {{
-        :osfamily => osfamily,
-        :operatingsystem => dist,
-        :operatingsystemmajrelease => majrelease,
+        osfamily: osfamily,
+        operatingsystem: dist,
+        operatingsystemmajrelease: majrelease,
       }}
 
       # The details of the test of Aerospike::Xdr_credentials_file define are in
@@ -359,13 +359,13 @@ describe 'aerospike' do
     # #####################################################################
     describe "Tests multiple datacenter replication for a given namespace on #{osfamily}" do
       let(:params) {{
-        :config_ns                  => {
-          'foo'                     => {
+        config_ns: {
+          'foo' => {
             'enable-xdr'            => true,
             'xdr-remote-datacenter' => [ 'DC1', 'DC2' ],
           },
         },
-        :config_xdr            => {
+        config_xdr: {
           'enable-xdr'         => true,
           'xdr-digestlog-path' => '/opt/aerospike/digestlog 100G',
           'xdr-errorlog-path'  => '/var/log/aerospike/asxdr.log',
@@ -381,9 +381,9 @@ describe 'aerospike' do
         },
       }}
       let(:facts) {{
-        :osfamily => osfamily,
-        :operatingsystem => dist,
-        :operatingsystemmajrelease => majrelease,
+        osfamily: osfamily,
+        operatingsystem: dist,
+        operatingsystemmajrelease: majrelease,
       }}
 
       it { is_expected.to compile.with_all_deps }
@@ -410,12 +410,12 @@ describe 'aerospike' do
     # #####################################################################
     describe 'manage_service set to false' do
       let(:params) {{
-        :manage_service => false,
+        manage_service: false,
       }}
       let(:facts) {{
-        :osfamily => osfamily,
-        :operatingsystem => dist,
-        :operatingsystemmajrelease => majrelease,
+        osfamily: osfamily,
+        operatingsystem: dist,
+        operatingsystemmajrelease: majrelease,
       }}
 
       it { is_expected.to compile.with_all_deps }
@@ -446,12 +446,12 @@ describe 'aerospike' do
   # #####################################################################
   describe 'restart_on_config_change set to false' do
     let(:params) {{
-      :restart_on_config_change => false,
+      restart_on_config_change: false,
     }}
     let(:facts) {{
-      :osfamily => 'Debian',
-      :operatingsystem => 'Ubuntu',
-      :operatingsystemmajrelease => '16.04',
+      osfamily: 'Debian',
+      operatingsystem: 'Ubuntu',
+      operatingsystemmajrelease: '16.04',
     }}
 
     it { is_expected.to compile.with_all_deps }
@@ -469,12 +469,12 @@ describe 'aerospike' do
 
   describe 'allow changing service provider' do
     let(:params) {{
-      :service_provider => 'systemd',
+      service_provider: 'systemd',
     }}
     let(:facts) {{
-      :osfamily => 'Debian',
-      :operatingsystem => 'Ubuntu',
-      :operatingsystemmajrelease => '16.04',
+      osfamily: 'Debian',
+      operatingsystem: 'Ubuntu',
+      operatingsystemmajrelease: '16.04',
     }}
 
     it { is_expected.to compile.with_all_deps }
@@ -491,12 +491,12 @@ describe 'aerospike' do
 
   describe 'allow modifying asinstall parameters' do
     let(:params) {{
-      :asinstall_params => '--force-confnew -i',
+      asinstall_params: '--force-confnew -i',
     }}
     let(:facts) {{
-      :osfamily => 'Debian',
-      :operatingsystem => 'Debian',
-      :operatingsystemmajrelease => '8',
+      osfamily: 'Debian',
+      operatingsystem: 'Debian',
+      operatingsystemmajrelease: '8',
     }}
 
     let(:target_dir) { '/usr/local/src/aerospike-server-community-3.8.4-debian8' }
@@ -513,49 +513,49 @@ describe 'aerospike' do
   shared_examples 'amc-related' do |osfamily, dist, majrelease, expected_tag|
     # Here we enforce only the amc_version as this test would be useless if we
     # change the defautl version.
-		describe "aerospike class without any parameters on #{osfamily}" do
-			let(:params) {{
-				:amc_version      => '3.6.6',
-        :service_provider => 'init',
+    describe "aerospike class without any parameters on #{osfamily}" do
+      let(:params) {{
+        amc_version: '3.6.6',
+        service_provider: 'init',
       }}
       let(:facts) {{
-        :osfamily => osfamily,
-        :operatingsystem => dist,
-        :operatingsystemmajrelease => majrelease,
+        osfamily: osfamily,
+        operatingsystem: dist,
+        operatingsystemmajrelease: majrelease,
       }}
 
-			it { is_expected.to compile.with_all_deps }
+      it { is_expected.to compile.with_all_deps }
 
-			# Tests related to the aerospike::install class
+      # Tests related to the aerospike::install class
       it { is_expected.to_not contain_archive('/usr/local/src/aerospike-amc-community-3.6.6.all.x86_64.deb') }
-			it { is_expected.to_not contain_package('aerospike-amc-community') }
+      it { is_expected.to_not contain_package('aerospike-amc-community') }
 
-			# Tests related to the aerospike::config class
+      # Tests related to the aerospike::config class
 
-			# Tests related to the aerospike::service class
+      # Tests related to the aerospike::service class
       it { is_expected.to_not contain_service('amc') }
-			it { is_expected.to contain_service('aerospike').with_hasrestart(true)\
+      it { is_expected.to contain_service('aerospike').with_hasrestart(true)\
           .with_hasstatus(true)\
           .with_provider('init')
       }
-		end
+    end
 
-		describe "aerospike class with all amc-related parameters on #{osfamily}" do
-			let(:params) {{
-				:amc_install        => true,
-				:amc_version        => '3.6.5',
-				:amc_download_dir   => '/tmp',
-				:amc_download_url   => 'http://my_fileserver.example.com/aerospike/aerospike-amc-community-3.6.5.all.x86_64.deb',
-				:amc_manage_service => true,
-				:amc_service_status => 'stopped',
-			}}
+    describe "aerospike class with all amc-related parameters on #{osfamily}" do
+      let(:params) {{
+        amc_install: true,
+        amc_version: '3.6.5',
+        amc_download_dir: '/tmp',
+        amc_download_url: 'http://my_fileserver.example.com/aerospike/aerospike-amc-community-3.6.5.all.x86_64.deb',
+        amc_manage_service: true,
+        amc_service_status: 'stopped',
+      }}
       let(:facts) {{
-        :osfamily => osfamily,
-        :operatingsystem => 'Debian',
-        :operatingsystemmajrelease => '8',
+        osfamily: osfamily,
+        operatingsystem: 'Debian',
+        operatingsystemmajrelease: '8',
       }}
 
-			# Tests related to the aerospike::install class
+      # Tests related to the aerospike::install class
       it { is_expected.to contain_package('python-pip').with_ensure('installed').that_comes_before('Package[bcrypt]') }
       it { is_expected.to contain_package('ansible').with_ensure('installed') }
       it { is_expected.to contain_package('python-paramiko').with_ensure('installed') }
@@ -579,14 +579,14 @@ describe 'aerospike' do
            .with_cleanup(false)
       end
 
-			it do
+      it do
         is_expected.to contain_package('aerospike-amc-community')\
           .with_ensure('latest')\
           .with_provider('dpkg')\
           .with_source('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb')
       end
 
-			# Tests related to the aerospike::config class
+      # Tests related to the aerospike::config class
 
       # Tests related to the aerospike::service class
       it do
@@ -596,8 +596,8 @@ describe 'aerospike' do
           .with_hasrestart(true)\
           .with_hasstatus(true)
       end
-		end
-	end
+    end
+  end
 
   context 'supported operating systems - amc-related tests' do
     # execute shared tests on various distributions
