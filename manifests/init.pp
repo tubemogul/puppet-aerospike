@@ -63,7 +63,7 @@ class aerospike (
         'file /data/aerospike/data2.dat',
         'filesize 10G',
         'data-in-memory false',
-      ]
+      ],
     },
   },
   $config_cluster         = {},
