@@ -350,7 +350,6 @@ describe 'aerospike' do
       it { is_expected.to contain_Aerospike__Xdr_credentials_file('DC1') }
     end
 
-
     # #####################################################################
     # Tests multiple datacenter replication for a given namespace
     # #####################################################################
@@ -439,7 +438,6 @@ describe 'aerospike' do
     it_behaves_like 'supported_os', 'Debian', 'Ubuntu', '16.04', 'ubuntu16.04'
     it_behaves_like 'supported_os', 'RedHat', 'RedHat', '7', 'el7'
   end
-
 
   # #####################################################################
   # Test for the restart_on_config_change set to false
