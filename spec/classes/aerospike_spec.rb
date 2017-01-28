@@ -6,7 +6,7 @@ describe 'aerospike' do
     # Basic compilation test with all parameters to default
     # #####################################################################
     describe "aerospike class without any parameters on #{osfamily}, #{dist} #{majrelease}" do
-      let(:params) { }
+      let(:params) { {} }
       let(:facts) do
         {
           osfamily: osfamily,
@@ -89,109 +89,109 @@ describe 'aerospike' do
     describe "aerospike class with all parameters (except custom url) on #{osfamily}, #{majrelease}" do
       let(:params) do
         {
-        version: '3.8.3',
-        download_dir: '/tmp',
-        remove_archive:   true,
-        edition:          'enterprise',
-        download_user:    'dummy_user',
-        download_pass:    'dummy_password',
-        system_user:      'as_user',
-        system_uid:       511,
-        system_group:     'as_group',
-        system_gid:       512,
-        service_provider: 'init',
-        config_service: {
-          'paxos-single-replica-limit'    => 2,
-          'pidfile'                       => '/run/aerospike/asd.pid',
-          'service-threads'               => 8,
-          'scan-thread'                   => 6,
-          'transaction-queues'            => 2,
-          'transaction-threads-per-queue' => 4,
-          'proto-fd-max'                  => 20000
-        },
-        config_logging: {
-          '/var/log/aerospike/aerospike.log' => ['any info'],
-          '/var/log/aerospike/aerospike.debug' => ['cluster debug', 'migrate debug']
-        },
-        config_net_svc: {
-          'address'        => 'any',
-          'port'           => 4000,
-          'access-address' => '192.168.1.100'
-        },
-        config_net_fab: {
-          'address' => 'any',
-          'port'    => 4001
-        },
-        config_net_inf: {
-          'address' => 'any',
-          'port'    => 4003
-        },
-        config_net_hb: {
-          'mode'                                 => 'mesh',
-          'address'                              => '192.168.1.100',
-          'mesh-seed-address-port 192.168.1.100' => '3002',
-          'mesh-seed-address-port 192.168.1.101' => '3002',
-          'mesh-seed-address-port 192.168.1.102' => '3002',
-          'port'                                 => 3002,
-          'interval'                             => 150,
-          'timeout'                              => 10
-        },
-        config_ns: {
-          'bar'                  => {
-            'replication-factor' => 2,
-            'memory-size'        => '10G',
-            'default-ttl'        => '30d',
-            'storage-engine'     => 'memory'
+          version: '3.8.3',
+          download_dir: '/tmp',
+          remove_archive:   true,
+          edition:          'enterprise',
+          download_user:    'dummy_user',
+          download_pass:    'dummy_password',
+          system_user:      'as_user',
+          system_uid:       511,
+          system_group:     'as_group',
+          system_gid:       512,
+          service_provider: 'init',
+          config_service: {
+            'paxos-single-replica-limit'    => 2,
+            'pidfile'                       => '/run/aerospike/asd.pid',
+            'service-threads'               => 8,
+            'scan-thread'                   => 6,
+            'transaction-queues'            => 2,
+            'transaction-threads-per-queue' => 4,
+            'proto-fd-max'                  => 20_000
           },
-          'foo'                     => {
-            'replication-factor'    => 2,
-            'memory-size'           => '1G',
-            'storage-engine device' => [
-              'file /data/aerospike/foo.dat',
-              'filesize 10G',
-              'data-in-memory false'
+          config_logging: {
+            '/var/log/aerospike/aerospike.log' => ['any info'],
+            '/var/log/aerospike/aerospike.debug' => ['cluster debug', 'migrate debug']
+          },
+          config_net_svc: {
+            'address'        => 'any',
+            'port'           => 4000,
+            'access-address' => '192.168.1.100'
+          },
+          config_net_fab: {
+            'address' => 'any',
+            'port'    => 4001
+          },
+          config_net_inf: {
+            'address' => 'any',
+            'port'    => 4003
+          },
+          config_net_hb: {
+            'mode'                                 => 'mesh',
+            'address'                              => '192.168.1.100',
+            'mesh-seed-address-port 192.168.1.100' => '3002',
+            'mesh-seed-address-port 192.168.1.101' => '3002',
+            'mesh-seed-address-port 192.168.1.102' => '3002',
+            'port'                                 => 3002,
+            'interval'                             => 150,
+            'timeout'                              => 10
+          },
+          config_ns: {
+            'bar'                  => {
+              'replication-factor' => 2,
+              'memory-size'        => '10G',
+              'default-ttl'        => '30d',
+              'storage-engine'     => 'memory'
+            },
+            'foo'                     => {
+              'replication-factor'    => 2,
+              'memory-size'           => '1G',
+              'storage-engine device' => [
+                'file /data/aerospike/foo.dat',
+                'filesize 10G',
+                'data-in-memory false'
+              ]
+            }
+          },
+          config_cluster: {
+            'mode' => 'dynamic',
+            'self-group-id' => 201
+          },
+          config_sec: {
+            'privilege-refresh-period' => 500,
+            'syslog'                   => [
+              'local 0',
+              'report-user-admin true',
+              'report-authentication true',
+              'report-data-op foo true'
+            ],
+            'log'                      => [
+              'report-violation true'
             ]
-          }
-        },
-        config_cluster: {
-          'mode' => 'dynamic',
-          'self-group-id' => 201
-        },
-        config_sec: {
-          'privilege-refresh-period' => 500,
-          'syslog'                   => [
-            'local 0',
-            'report-user-admin true',
-            'report-authentication true',
-            'report-data-op foo true'
-          ],
-          'log'                      => [
-            'report-violation true'
-          ]
-        },
-        config_xdr: {
-          'enable-xdr'         => true,
-          'xdr-namedpipe-path' => '/tmp/xdr_pipe',
-          'xdr-digestlog-path' => '/opt/aerospike/digestlog 100G',
-          'xdr-errorlog-path'  => '/var/log/aerospike/asxdr.log',
-          'xdr-pidfile'        => '/var/run/aerospike/asxdr.pid',
-          'local-node-port'    => 4000,
-          'xdr-info-port'      => 3004,
-          'datacenter DC1'     => [
-            'dc-node-address-port 172.68.17.123 3000'
-          ]
-        },
-        config_mod_lua: {
-          'user-path' => '/opt/aerospike/usr/udf/lua'
-        },
-        service_status: 'stopped'
+          },
+          config_xdr: {
+            'enable-xdr'         => true,
+            'xdr-namedpipe-path' => '/tmp/xdr_pipe',
+            'xdr-digestlog-path' => '/opt/aerospike/digestlog 100G',
+            'xdr-errorlog-path'  => '/var/log/aerospike/asxdr.log',
+            'xdr-pidfile'        => '/var/run/aerospike/asxdr.pid',
+            'local-node-port'    => 4000,
+            'xdr-info-port'      => 3004,
+            'datacenter DC1'     => [
+              'dc-node-address-port 172.68.17.123 3000'
+            ]
+          },
+          config_mod_lua: {
+            'user-path' => '/opt/aerospike/usr/udf/lua'
+          },
+          service_status: 'stopped'
         }
       end
       let(:facts) do
         {
-        osfamily: osfamily,
-        operatingsystem: dist,
-        operatingsystemmajrelease: majrelease
+          osfamily: osfamily,
+          operatingsystem: dist,
+          operatingsystemmajrelease: majrelease
         }
       end
 
@@ -324,9 +324,9 @@ describe 'aerospike' do
       let(:params) { { config_xdr_credentials: {} } }
       let(:facts) do
         {
-        osfamily: osfamily,
-        operatingsystem: dist,
-        operatingsystemmajrelease: majrelease
+          osfamily: osfamily,
+          operatingsystem: dist,
+          operatingsystemmajrelease: majrelease
         }
       end
 
@@ -600,7 +600,7 @@ describe 'aerospike' do
   context 'supported operating systems - amc-related tests' do
     # execute shared tests on various distributions
     # parameters :                  osfamily, dist, majrelease
-    it_behaves_like 'supported_os', 'Debian', 'Debian', '8'
-    it_behaves_like 'supported_os', 'Debian', 'Ubuntu', '16.04'
+    it_behaves_like 'amc-related', 'Debian', 'Debian', '8'
+    it_behaves_like 'amc-related', 'Debian', 'Ubuntu', '16.04'
   end
 end
