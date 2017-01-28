@@ -10,15 +10,15 @@ describe 'aerospike::xdr_credentials_file' do
     }
 
     it do
-      is_expected.to contain_file('/etc/aerospike/security-credentials_DC1.txt')\
-        .with_ensure('present')\
-        .with_mode('0600')\
-        .with_owner('root')\
-        .with_group('root')\
-        .with_content(/^credentials$/)\
-        .with_content(/username xdr_user_DC1$/)\
-        .with_content(/password xdr_password_DC1$/)\
-        .without_notify
+      is_expected.to contain_file('/etc/aerospike/security-credentials_DC1.txt').\
+        with_ensure('present').\
+        with_mode('0600').\
+        with_owner('root').\
+        with_group('root').\
+        with_content(/^credentials$/).\
+        with_content(/username xdr_user_DC1$/).\
+        with_content(/password xdr_password_DC1$/).\
+        without_notify
     end
   end
 end

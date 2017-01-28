@@ -30,17 +30,14 @@ describe 'aerospike' do
 
       # Tests related to the aerospike::config class
       it do
-        is_expected.to create_file('/etc/aerospike/aerospike.conf')\
-          .without_content(/^\s*cluster {$/)\
-          .without_content(/^\s*security {$/)\
-          .without_content(/^\s*xdr {$/)
+        is_expected.to create_file('/etc/aerospike/aerospike.conf').\
+          without_content(/^\s*cluster {$/).\
+          without_content(/^\s*security {$/).\
+          without_content(/^\s*xdr {$/)
       end
 
       # Tests related to the aerospike::service class
-      it do
-        is_expected.to contain_service('aerospike')\
-          .with_ensure('running')
-      end
+      it { is_expected.to contain_service('aerospike').with_ensure('running') }
     end
 
     # #####################################################################
@@ -62,25 +59,21 @@ describe 'aerospike' do
       it { is_expected.to compile.with_all_deps }
 
       it do
-        is_expected.to contain_archive("/usr/local/src/aerospike-server-enterprise-3.8.3-#{expected_tag}.tgz")\
-          .with_ensure('present')\
-          .with_source("http://my_fileserver.example.com/aerospike/aerospike-server-enterprise-3.8.3-#{expected_tag}.tgz")\
-          .with_extract(true)\
-          .with_extract_path('/usr/local/src')\
-          .with_creates(target_dir)\
-          .with_cleanup(false)\
-          .that_notifies('Exec[aerospike-install-server]')
+        is_expected.to contain_archive("/usr/local/src/aerospike-server-enterprise-3.8.3-#{expected_tag}.tgz").\
+          with_ensure('present').\
+          with_source("http://my_fileserver.example.com/aerospike/aerospike-server-enterprise-3.8.3-#{expected_tag}.tgz").\
+          with_extract(true).\
+          with_extract_path('/usr/local/src').\
+          with_creates(target_dir).\
+          with_cleanup(false).\
+          that_notifies('Exec[aerospike-install-server]')
       end
 
       case osfamily
       when 'Debian'
-        it { is_expected.to contain_exec('aerospike-install-server')
-          .with_command("#{target_dir}/asinstall --force-confold -i")
-        }
+        it { is_expected.to contain_exec('aerospike-install-server').with_command("#{target_dir}/asinstall --force-confold -i") }
       when 'RedHat'
-        it { is_expected.to contain_exec('aerospike-install-server')
-          .with_command("#{target_dir}/asinstall -Uvh")
-        }
+        it { is_expected.to contain_exec('aerospike-install-server').with_command("#{target_dir}/asinstall -Uvh") }
       end
     end
 
@@ -204,117 +197,113 @@ describe 'aerospike' do
 
       # Tests related to the aerospike::install class
       it do
-        is_expected.to contain_archive("/tmp/aerospike-server-enterprise-3.8.3-#{expected_tag}.tgz")\
-          .with_ensure('present')\
-          .with_source("http://www.aerospike.com/artifacts/aerospike-server-enterprise/3.8.3/aerospike-server-enterprise-3.8.3-#{expected_tag}.tgz")\
-          .with_username('dummy_user')\
-          .with_password('dummy_password')\
-          .with_extract(true)\
-          .with_extract_path('/tmp')\
-          .with_creates(target_dir)\
-          .with_cleanup(true)\
-          .that_notifies('Exec[aerospike-install-server]')
+        is_expected.to contain_archive("/tmp/aerospike-server-enterprise-3.8.3-#{expected_tag}.tgz").\
+          with_ensure('present').\
+          with_source("http://www.aerospike.com/artifacts/aerospike-server-enterprise/3.8.3/aerospike-server-enterprise-3.8.3-#{expected_tag}.tgz").\
+          with_username('dummy_user').\
+          with_password('dummy_password').\
+          with_extract(true).\
+          with_extract_path('/tmp').\
+          with_creates(target_dir).\
+          with_cleanup(true).\
+          that_notifies('Exec[aerospike-install-server]')
       end
 
       case osfamily
       when 'Debian'
-        it { is_expected.to contain_exec('aerospike-install-server')
-          .with_command("#{target_dir}/asinstall --force-confold -i")
-        }
+        it { is_expected.to contain_exec('aerospike-install-server').with_command("#{target_dir}/asinstall --force-confold -i") }
       when 'RedHat'
-        it { is_expected.to contain_exec('aerospike-install-server')
-          .with_command("#{target_dir}/asinstall -Uvh")
-        }
+        it { is_expected.to contain_exec('aerospike-install-server').with_command("#{target_dir}/asinstall -Uvh") }
       end
 
       it do
-        is_expected.to contain_user('as_user')\
-          .with_ensure('present')\
-          .with_uid(511)\
-          .with_gid('as_group')\
-          .with_shell('/bin/bash')
+        is_expected.to contain_user('as_user').\
+          with_ensure('present').\
+          with_uid(511).\
+          with_gid('as_group').\
+          with_shell('/bin/bash')
       end
 
       it do
-        is_expected.to contain_group('as_group')\
-          .with_ensure('present')\
-          .with_gid(512)\
-          .that_comes_before('User[as_user]')
+        is_expected.to contain_group('as_group').\
+          with_ensure('present').\
+          with_gid(512).\
+          that_comes_before('User[as_user]')
       end
 
       # Tests related to the aerospike::config class
       # Especially the erb
       it do
-        is_expected.to create_file('/etc/aerospike/aerospike.conf')\
-          .with_content(/^\s*user as_user$/)\
-          .with_content(/^\s*group as_group$/)\
-          .with_content(/^\s*paxos-single-replica-limit 2$/)\
-          .with_content(/^\s*pidfile \/run\/aerospike\/asd.pid$/)\
-          .with_content(/^\s*service-threads 8$/)\
-          .with_content(/^\s*scan-thread 6$/)\
-          .with_content(/^\s*transaction-queues 2$/)\
-          .with_content(/^\s*transaction-threads-per-queue 4$/)\
-          .with_content(/^\s*proto-fd-max 20000$/)\
-          .with_content(/^\s*file \/var\/log\/aerospike\/aerospike.log {$/)\
-          .with_content(/^\s*context any info$/)\
-          .with_content(/^\s*file \/var\/log\/aerospike\/aerospike.debug {$/)\
-          .with_content(/^\s*context cluster debug$/)\
-          .with_content(/^\s*context migrate debug$/)\
-          .with_content(/^\s*access-address 192.168.1.100$/)\
-          .with_content(/^\s*address any$/)\
-          .with_content(/^\s*port 4000$/)\
-          .with_content(/^\s*mode mesh$/)\
-          .with_content(/^\s*address 192.168.1.100$/)\
-          .with_content(/^\s*mesh-seed-address-port 192.168.1.100 3002$/)\
-          .with_content(/^\s*mesh-seed-address-port 192.168.1.101 3002$/)\
-          .with_content(/^\s*mesh-seed-address-port 192.168.1.102 3002$/)\
-          .with_content(/^\s*port 3002$/)\
-          .with_content(/^\s*interval 150$/)\
-          .with_content(/^\s*timeout 10$/)\
-          .with_content(/^\s*namespace bar {$/)\
-          .with_content(/^\s*namespace foo {$/)\
-          .with_content(/^\s*replication-factor 2$/)\
-          .with_content(/^\s*memory-size 10G$/)\
-          .with_content(/^\s*default-ttl 30d$/)\
-          .with_content(/^\s*storage-engine memory$/)\
-          .with_content(/^\s*storage-engine device {$/)\
-          .with_content(/^\s*file \/data\/aerospike\/foo.dat$/)\
-          .with_content(/^\s*filesize 10G$/)\
-          .with_content(/^\s*data-in-memory false$/)\
-          .with_content(/^\s*cluster {$/)\
-          .with_content(/^\s*mode dynamic$/)\
-          .with_content(/^\s*self-group-id 201$/)\
-          .with_content(/^\s*security {$/)\
-          .with_content(/^\s*privilege-refresh-period 500$/)\
-          .with_content(/^\s*syslog {$/)\
-          .with_content(/^\s*local 0$/)\
-          .with_content(/^\s*report-user-admin true$/)\
-          .with_content(/^\s*report-authentication true$/)\
-          .with_content(/^\s*report-data-op foo true$/)\
-          .with_content(/^\s*log {$/)\
-          .with_content(/^\s*report-violation true$/)\
-          .with_content(/^\s*xdr {$/)\
-          .with_content(/^\s*enable-xdr true$/)\
-          .with_content(/^\s*xdr-namedpipe-path \/tmp\/xdr_pipe$/)\
-          .with_content(/^\s*xdr-digestlog-path \/opt\/aerospike\/digestlog 100G$/)\
-          .with_content(/^\s*xdr-errorlog-path \/var\/log\/aerospike\/asxdr.log$/)\
-          .with_content(/^\s*xdr-pidfile \/var\/run\/aerospike\/asxdr.pid$/)\
-          .with_content(/^\s*local-node-port 4000$/)\
-          .with_content(/^\s*xdr-info-port 3004$/)\
-          .with_content(/^\s*datacenter DC1 {$/)\
-          .with_content(/^\s*dc-node-address-port 172.68.17.123 3000$/)
-          .with_content(/^\s*mod-lua {$/)
-          .with_content(/^\s*user-path \/opt\/aerospike\/usr\/udf\/lua$/)
+        is_expected.to create_file('/etc/aerospike/aerospike.conf').\
+          with_content(/^\s*user as_user$/).\
+          with_content(/^\s*group as_group$/).\
+          with_content(/^\s*paxos-single-replica-limit 2$/).\
+          with_content(/^\s*pidfile \/run\/aerospike\/asd.pid$/).\
+          with_content(/^\s*service-threads 8$/).\
+          with_content(/^\s*scan-thread 6$/).\
+          with_content(/^\s*transaction-queues 2$/).\
+          with_content(/^\s*transaction-threads-per-queue 4$/).\
+          with_content(/^\s*proto-fd-max 20000$/).\
+          with_content(/^\s*file \/var\/log\/aerospike\/aerospike.log {$/).\
+          with_content(/^\s*context any info$/).\
+          with_content(/^\s*file \/var\/log\/aerospike\/aerospike.debug {$/).\
+          with_content(/^\s*context cluster debug$/).\
+          with_content(/^\s*context migrate debug$/).\
+          with_content(/^\s*access-address 192.168.1.100$/).\
+          with_content(/^\s*address any$/).\
+          with_content(/^\s*port 4000$/).\
+          with_content(/^\s*mode mesh$/).\
+          with_content(/^\s*address 192.168.1.100$/).\
+          with_content(/^\s*mesh-seed-address-port 192.168.1.100 3002$/).\
+          with_content(/^\s*mesh-seed-address-port 192.168.1.101 3002$/).\
+          with_content(/^\s*mesh-seed-address-port 192.168.1.102 3002$/).\
+          with_content(/^\s*port 3002$/).\
+          with_content(/^\s*interval 150$/).\
+          with_content(/^\s*timeout 10$/).\
+          with_content(/^\s*namespace bar {$/).\
+          with_content(/^\s*namespace foo {$/).\
+          with_content(/^\s*replication-factor 2$/).\
+          with_content(/^\s*memory-size 10G$/).\
+          with_content(/^\s*default-ttl 30d$/).\
+          with_content(/^\s*storage-engine memory$/).\
+          with_content(/^\s*storage-engine device {$/).\
+          with_content(/^\s*file \/data\/aerospike\/foo.dat$/).\
+          with_content(/^\s*filesize 10G$/).\
+          with_content(/^\s*data-in-memory false$/).\
+          with_content(/^\s*cluster {$/).\
+          with_content(/^\s*mode dynamic$/).\
+          with_content(/^\s*self-group-id 201$/).\
+          with_content(/^\s*security {$/).\
+          with_content(/^\s*privilege-refresh-period 500$/).\
+          with_content(/^\s*syslog {$/).\
+          with_content(/^\s*local 0$/).\
+          with_content(/^\s*report-user-admin true$/).\
+          with_content(/^\s*report-authentication true$/).\
+          with_content(/^\s*report-data-op foo true$/).\
+          with_content(/^\s*log {$/).\
+          with_content(/^\s*report-violation true$/).\
+          with_content(/^\s*xdr {$/).\
+          with_content(/^\s*enable-xdr true$/).\
+          with_content(/^\s*xdr-namedpipe-path \/tmp\/xdr_pipe$/).\
+          with_content(/^\s*xdr-digestlog-path \/opt\/aerospike\/digestlog 100G$/).\
+          with_content(/^\s*xdr-errorlog-path \/var\/log\/aerospike\/asxdr.log$/).\
+          with_content(/^\s*xdr-pidfile \/var\/run\/aerospike\/asxdr.pid$/).\
+          with_content(/^\s*local-node-port 4000$/).\
+          with_content(/^\s*xdr-info-port 3004$/).\
+          with_content(/^\s*datacenter DC1 {$/).\
+          with_content(/^\s*dc-node-address-port 172.68.17.123 3000$/).\
+          with_content(/^\s*mod-lua {$/).\
+          with_content(/^\s*user-path \/opt\/aerospike\/usr\/udf\/lua$/)
       end
 
       # Tests related to the aerospike::service class
       it do
-        is_expected.to contain_service('aerospike')\
-          .with_ensure('stopped')\
-          .with_enable(true)\
-          .with_hasrestart(true)\
-          .with_hasstatus(true)\
-          .with_provider('init')
+        is_expected.to contain_service('aerospike').\
+          with_ensure('stopped').\
+          with_enable(true).\
+          with_hasrestart(true).\
+          with_hasstatus(true).\
+          with_provider('init')
       end
     end
 
@@ -386,20 +375,20 @@ describe 'aerospike' do
 
       it { is_expected.to compile.with_all_deps }
       it do
-        is_expected.to create_file('/etc/aerospike/aerospike.conf')\
-          .with_content(/^\s*namespace foo {$/)\
-          .with_content(/^\s*enable-xdr true$/)\
-          .with_content(/^\s*xdr-remote-datacenter DC1$/)\
-          .with_content(/^\s*xdr-remote-datacenter DC2$/)\
-          .with_content(/^\s*xdr-digestlog-path \/opt\/aerospike\/digestlog 100G$/)\
-          .with_content(/^\s*xdr-errorlog-path \/var\/log\/aerospike\/asxdr.log$/)\
-          .with_content(/^\s*xdr-pidfile \/var\/run\/aerospike\/asxdr.pid$/)\
-          .with_content(/^\s*local-node-port 4000$/)\
-          .with_content(/^\s*xdr-info-port 3004$/)\
-          .with_content(/^\s*datacenter DC1 {$/)\
-          .with_content(/^\s*dc-node-address-port 172.1.1.100 3000$/)\
-          .with_content(/^\s*datacenter DC2 {$/)\
-          .with_content(/^\s*dc-node-address-port 172.2.2.100 3000$/)
+        is_expected.to create_file('/etc/aerospike/aerospike.conf').\
+          with_content(/^\s*namespace foo {$/).\
+          with_content(/^\s*enable-xdr true$/).\
+          with_content(/^\s*xdr-remote-datacenter DC1$/).\
+          with_content(/^\s*xdr-remote-datacenter DC2$/).\
+          with_content(/^\s*xdr-digestlog-path \/opt\/aerospike\/digestlog 100G$/).\
+          with_content(/^\s*xdr-errorlog-path \/var\/log\/aerospike\/asxdr.log$/).\
+          with_content(/^\s*xdr-pidfile \/var\/run\/aerospike\/asxdr.pid$/).\
+          with_content(/^\s*local-node-port 4000$/).\
+          with_content(/^\s*xdr-info-port 3004$/).\
+          with_content(/^\s*datacenter DC1 {$/).\
+          with_content(/^\s*dc-node-address-port 172.1.1.100 3000$/).\
+          with_content(/^\s*datacenter DC2 {$/).\
+          with_content(/^\s*dc-node-address-port 172.2.2.100 3000$/)
       end
     end
 
@@ -479,11 +468,7 @@ describe 'aerospike' do
     it { is_expected.to contain_class('aerospike::config').that_comes_before('Class[aerospike::service]') }
     it { is_expected.to contain_class('aerospike::service') }
 
-    it { is_expected.to contain_service('aerospike')
-      .with_hasrestart(true)\
-      .with_hasstatus(true)\
-      .with_provider('systemd')
-    }
+    it { is_expected.to contain_service('aerospike').with_hasrestart(true).with_hasstatus(true).with_provider('systemd') }
   end
 
   describe 'allow modifying asinstall parameters' do
@@ -503,8 +488,7 @@ describe 'aerospike' do
     it { is_expected.to contain_class('aerospike::config').that_comes_before('Class[aerospike::service]') }
     it { is_expected.to create_file('/etc/aerospike/aerospike.conf') }
 
-    it { is_expected.to contain_exec('aerospike-install-server')
-      .with_command("#{target_dir}/asinstall --force-confnew -i") }
+    it { is_expected.to contain_exec('aerospike-install-server').with_command("#{target_dir}/asinstall --force-confnew -i") }
   end
 
   shared_examples 'amc-related' do |osfamily, dist, majrelease, expected_tag|
@@ -531,10 +515,7 @@ describe 'aerospike' do
 
       # Tests related to the aerospike::service class
       it { is_expected.to_not contain_service('amc') }
-      it { is_expected.to contain_service('aerospike').with_hasrestart(true)\
-        .with_hasstatus(true)\
-        .with_provider('init')
-      }
+      it { is_expected.to contain_service('aerospike').with_hasrestart(true).with_hasstatus(true).with_provider('init') }
     end
 
     describe "aerospike class with all amc-related parameters on #{osfamily}" do
@@ -567,31 +548,31 @@ describe 'aerospike' do
       it { is_expected.to contain_package('bcrypt').with_ensure('installed').with_provider('pip') }
 
       it do
-        is_expected.to contain_archive('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb')\
-          .with_ensure('present')\
-          .with_source('http://my_fileserver.example.com/aerospike/aerospike-amc-community-3.6.5.all.x86_64.deb')\
-          .with_extract(false)\
-          .with_extract_path('/tmp')\
-          .with_creates('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb')\
-          .with_cleanup(false)
+        is_expected.to contain_archive('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb').\
+          with_ensure('present').\
+          with_source('http://my_fileserver.example.com/aerospike/aerospike-amc-community-3.6.5.all.x86_64.deb').\
+          with_extract(false).\
+          with_extract_path('/tmp').\
+          with_creates('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb').\
+          with_cleanup(false)
       end
 
       it do
-        is_expected.to contain_package('aerospike-amc-community')\
-          .with_ensure('latest')\
-          .with_provider('dpkg')\
-          .with_source('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb')
+        is_expected.to contain_package('aerospike-amc-community').\
+          with_ensure('latest').\
+          with_provider('dpkg').\
+          with_source('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb')
       end
 
       # Tests related to the aerospike::config class
 
       # Tests related to the aerospike::service class
       it do
-        is_expected.to contain_service('amc')\
-          .with_ensure('stopped')\
-          .with_enable(true)\
-          .with_hasrestart(true)\
-          .with_hasstatus(true)
+        is_expected.to contain_service('amc').\
+          with_ensure('stopped').\
+          with_enable(true).\
+          with_hasrestart(true).\
+          with_hasstatus(true)
       end
     end
   end
