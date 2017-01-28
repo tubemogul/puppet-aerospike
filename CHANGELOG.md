@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Dropped
 - Removed the `TODO` file as we switch to github issues for listing the taks
+- Removed the `CONTRIBUTORS` file. You can get the contributors via the GitHub API
 
 ## [1.2.1] - 2016-09-13
 ### Fixed
