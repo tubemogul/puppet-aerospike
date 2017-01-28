@@ -5,7 +5,7 @@ describe 'aerospike::xdr_credentials_file' do
     let(:title) { 'DC1' }
     let(:params) do
       {
-        all_xdr_credentials: { "DC1" => { "username" => "xdr_user_DC1", "password" => "xdr_password_DC1" } }
+        all_xdr_credentials: { 'DC1' => { 'username' => 'xdr_user_DC1', 'password' => 'xdr_password_DC1' } }
       }
     end
 
