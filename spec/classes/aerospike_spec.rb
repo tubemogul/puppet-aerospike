@@ -505,7 +505,7 @@ describe 'aerospike' do
     it { is_expected.to contain_exec('aerospike-install-server').with_command("#{target_dir}/asinstall --force-confnew -i") }
   end
 
-  shared_examples 'amc-related' do |osfamily, dist, majrelease, expected_tag|
+  shared_examples 'amc-related' do |osfamily, dist, majrelease|
     # Here we enforce only the amc_version as this test would be useless if we
     # change the defautl version.
     describe "aerospike class without any parameters on #{osfamily}" do
@@ -601,8 +601,8 @@ describe 'aerospike' do
 
   context 'supported operating systems - amc-related tests' do
     # execute shared tests on various distributions
-    # parameters :                  osfamily, dist, majrelease, expected_tag
-    it_behaves_like 'supported_os', 'Debian', 'Debian', '8', 'debian8'
-    it_behaves_like 'supported_os', 'Debian', 'Ubuntu', '16.04', 'ubuntu16.04'
+    # parameters :                  osfamily, dist, majrelease
+    it_behaves_like 'supported_os', 'Debian', 'Debian', '8'
+    it_behaves_like 'supported_os', 'Debian', 'Ubuntu', '16.04'
   end
 end
