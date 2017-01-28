@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe 'aerospike::xdr_credentials_file' do
-
   context 'definition of a credentials for DC1' do
     let (:title) { 'DC1' }
     let (:params) {
@@ -22,5 +21,4 @@ describe 'aerospike::xdr_credentials_file' do
         .without_notify
     end
   end
-
 end

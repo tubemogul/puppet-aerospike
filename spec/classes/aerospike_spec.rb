@@ -1,9 +1,7 @@
 require 'spec_helper'
 
 describe 'aerospike' do
-
   shared_examples 'supported_os' do |osfamily, dist, majrelease, expected_tag|
-
     # #####################################################################
     # Basic compilation test with all parameters to default
     # #####################################################################
@@ -429,7 +427,6 @@ describe 'aerospike' do
       # We still manage the config file
       it { is_expected.to create_file('/etc/aerospike/aerospike.conf') }
     end
-
   end
 
   context 'supported operating systems - aerospike-server-related tests' do
@@ -605,5 +602,4 @@ describe 'aerospike' do
     it_behaves_like 'supported_os', 'Debian', 'Debian', '8', 'debian8'
     it_behaves_like 'supported_os', 'Debian', 'Ubuntu', '16.04', 'ubuntu16.04'
   end
-
 end
