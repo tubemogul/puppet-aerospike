@@ -165,7 +165,7 @@ describe 'aerospike' do
               'report-authentication true',
               'report-data-op foo true'
             ],
-            'log'                      => [
+            'log' => [
               'report-violation true'
             ]
           },
@@ -359,7 +359,7 @@ describe 'aerospike' do
           config_ns: {
             'foo' => {
               'enable-xdr'            => true,
-              'xdr-remote-datacenter' => ['DC1', 'DC2']
+              'xdr-remote-datacenter' => %w(DC1 DC2)
             }
           },
           config_xdr: {
