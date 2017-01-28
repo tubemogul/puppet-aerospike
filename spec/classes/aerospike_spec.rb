@@ -110,8 +110,8 @@ describe 'aerospike' do
           'proto-fd-max'                  => 20000
         },
         config_logging: {
-          '/var/log/aerospike/aerospike.log' => [ 'any info' ],
-          '/var/log/aerospike/aerospike.debug' => [ 'cluster debug', 'migrate debug' ]
+          '/var/log/aerospike/aerospike.log' => ['any info'],
+          '/var/log/aerospike/aerospike.debug' => ['cluster debug', 'migrate debug']
         },
         config_net_svc: {
           'address'        => 'any',
@@ -359,7 +359,7 @@ describe 'aerospike' do
           config_ns: {
             'foo' => {
               'enable-xdr'            => true,
-              'xdr-remote-datacenter' => [ 'DC1', 'DC2' ]
+              'xdr-remote-datacenter' => ['DC1', 'DC2']
             }
           },
           config_xdr: {
