@@ -6,7 +6,7 @@ describe 'aerospike' do
     # Basic compilation test with all parameters to default
     # #####################################################################
     describe "aerospike class without any parameters on #{osfamily}, #{dist} #{majrelease}" do
-      let(:params) { { } }
+      let(:params) { }
       let(:facts) do
         {
           osfamily: osfamily,
@@ -336,7 +336,7 @@ describe 'aerospike' do
     end
 
     describe "create a file with XDR credentials on #{osfamily}" do
-      let(:params) { { config_xdr_credentials: {"DC1"=>{"username"=>"xdr_user_DC1", "password"=>"xdr_password_DC1"}} } }
+      let(:params) { { config_xdr_credentials: { "DC1" => { "username" => "xdr_user_DC1", "password" => "xdr_password_DC1" } } } }
       let(:facts) do
         {
           osfamily: osfamily,
