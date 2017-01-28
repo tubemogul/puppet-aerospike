@@ -480,9 +480,9 @@ describe 'aerospike' do
     it { is_expected.to contain_class('aerospike::service') }
 
     it { is_expected.to contain_service('aerospike')
-         .with_hasrestart(true)\
-         .with_hasstatus(true)\
-         .with_provider('systemd')
+      .with_hasrestart(true)\
+      .with_hasstatus(true)\
+      .with_provider('systemd')
     }
   end
 
@@ -532,8 +532,8 @@ describe 'aerospike' do
       # Tests related to the aerospike::service class
       it { is_expected.to_not contain_service('amc') }
       it { is_expected.to contain_service('aerospike').with_hasrestart(true)\
-          .with_hasstatus(true)\
-          .with_provider('init')
+        .with_hasstatus(true)\
+        .with_provider('init')
       }
     end
 
@@ -568,12 +568,12 @@ describe 'aerospike' do
 
       it do
         is_expected.to contain_archive('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb')\
-           .with_ensure('present')\
-           .with_source('http://my_fileserver.example.com/aerospike/aerospike-amc-community-3.6.5.all.x86_64.deb')\
-           .with_extract(false)\
-           .with_extract_path('/tmp')\
-           .with_creates('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb')\
-           .with_cleanup(false)
+          .with_ensure('present')\
+          .with_source('http://my_fileserver.example.com/aerospike/aerospike-amc-community-3.6.5.all.x86_64.deb')\
+          .with_extract(false)\
+          .with_extract_path('/tmp')\
+          .with_creates('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb')\
+          .with_cleanup(false)
       end
 
       it do
