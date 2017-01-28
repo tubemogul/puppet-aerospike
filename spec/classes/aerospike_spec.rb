@@ -524,13 +524,13 @@ describe 'aerospike' do
       it { is_expected.to compile.with_all_deps }
 
       # Tests related to the aerospike::install class
-      it { is_expected.to_not contain_archive('/usr/local/src/aerospike-amc-community-3.6.6.all.x86_64.deb') }
-      it { is_expected.to_not contain_package('aerospike-amc-community') }
+      it { is_expected.not_to contain_archive('/usr/local/src/aerospike-amc-community-3.6.6.all.x86_64.deb') }
+      it { is_expected.not_to contain_package('aerospike-amc-community') }
 
       # Tests related to the aerospike::config class
 
       # Tests related to the aerospike::service class
-      it { is_expected.to_not contain_service('amc') }
+      it { is_expected.not_to contain_service('amc') }
       it { is_expected.to contain_service('aerospike').with_hasrestart(true).with_hasstatus(true).with_provider('init') }
     end
 
