@@ -11,7 +11,7 @@ describe 'aerospike::xdr_credentials_file' do
     }
 
     it do
-      should contain_file('/etc/aerospike/security-credentials_DC1.txt')\
+      is_expected.to contain_file('/etc/aerospike/security-credentials_DC1.txt')\
         .with_ensure('present')\
         .with_mode('0600')\
         .with_owner('root')\

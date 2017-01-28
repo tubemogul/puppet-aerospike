@@ -4,7 +4,7 @@ describe 'aerospike class' do
 
   context 'default parameters' do
     # Using puppet_apply as a helper
-    it 'should work idempotently with no errors' do
+    it 'work idempotently with no errors' do
       pp = <<-EOS
       class { 'aerospike': }
       EOS
@@ -15,12 +15,12 @@ describe 'aerospike class' do
     end
 
     describe package('aerospike') do
-      it { should be_installed }
+      it { is_expected.to be_installed }
     end
 
     describe service('aerospike') do
-      it { should be_enabled }
-      it { should be_running }
+      it { is_expected.to be_enabled }
+      it { is_expected.to be_running }
     end
   end
 end
