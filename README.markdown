@@ -1114,7 +1114,7 @@ namespace foo {
 ##Limitations
 
 This module has only been tested against Ubuntu 14.04, but it should work with
-the Debian family and the Red Hat servers.
+the Debian and the Red Hat family.
 
 ##Development
 

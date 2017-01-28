@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Adding missing `stdlib` dependency to the `metadata.json`
 - A `aerospike::params` class has been added to hold the default values
 - Update `.gitignore` to ignore all version-dependent files
+- Adding the support for the RedHat OS family in the `metadata.json`
 
 ### Changed
 - The default values of `system_uid` and `system_gid` have been changed from 0
