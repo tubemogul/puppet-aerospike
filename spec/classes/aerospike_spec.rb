@@ -33,9 +33,9 @@ describe 'aerospike' do
       # Tests related to the aerospike::config class
       it do
         is_expected.to create_file('/etc/aerospike/aerospike.conf').\
-          without_content(/^\s*cluster {$/).\
-          without_content(/^\s*security {$/).\
-          without_content(/^\s*xdr {$/)
+          without_content(%r{^\s*cluster \{$}).\
+          without_content(%r{^\s*security \{$}).\
+          without_content(%r{^\s*xdr \{$})
       end
 
       # Tests related to the aerospike::service class
@@ -245,65 +245,65 @@ describe 'aerospike' do
       # Especially the erb
       it do
         is_expected.to create_file('/etc/aerospike/aerospike.conf').\
-          with_content(/^\s*user as_user$/).\
-          with_content(/^\s*group as_group$/).\
-          with_content(/^\s*paxos-single-replica-limit 2$/).\
-          with_content(/^\s*pidfile \/run\/aerospike\/asd.pid$/).\
-          with_content(/^\s*service-threads 8$/).\
-          with_content(/^\s*scan-thread 6$/).\
-          with_content(/^\s*transaction-queues 2$/).\
-          with_content(/^\s*transaction-threads-per-queue 4$/).\
-          with_content(/^\s*proto-fd-max 20000$/).\
-          with_content(/^\s*file \/var\/log\/aerospike\/aerospike.log {$/).\
-          with_content(/^\s*context any info$/).\
-          with_content(/^\s*file \/var\/log\/aerospike\/aerospike.debug {$/).\
-          with_content(/^\s*context cluster debug$/).\
-          with_content(/^\s*context migrate debug$/).\
-          with_content(/^\s*access-address 192.168.1.100$/).\
-          with_content(/^\s*address any$/).\
-          with_content(/^\s*port 4000$/).\
-          with_content(/^\s*mode mesh$/).\
-          with_content(/^\s*address 192.168.1.100$/).\
-          with_content(/^\s*mesh-seed-address-port 192.168.1.100 3002$/).\
-          with_content(/^\s*mesh-seed-address-port 192.168.1.101 3002$/).\
-          with_content(/^\s*mesh-seed-address-port 192.168.1.102 3002$/).\
-          with_content(/^\s*port 3002$/).\
-          with_content(/^\s*interval 150$/).\
-          with_content(/^\s*timeout 10$/).\
-          with_content(/^\s*namespace bar {$/).\
-          with_content(/^\s*namespace foo {$/).\
-          with_content(/^\s*replication-factor 2$/).\
-          with_content(/^\s*memory-size 10G$/).\
-          with_content(/^\s*default-ttl 30d$/).\
-          with_content(/^\s*storage-engine memory$/).\
-          with_content(/^\s*storage-engine device {$/).\
-          with_content(/^\s*file \/data\/aerospike\/foo.dat$/).\
-          with_content(/^\s*filesize 10G$/).\
-          with_content(/^\s*data-in-memory false$/).\
-          with_content(/^\s*cluster {$/).\
-          with_content(/^\s*mode dynamic$/).\
-          with_content(/^\s*self-group-id 201$/).\
-          with_content(/^\s*security {$/).\
-          with_content(/^\s*privilege-refresh-period 500$/).\
-          with_content(/^\s*syslog {$/).\
-          with_content(/^\s*local 0$/).\
-          with_content(/^\s*report-user-admin true$/).\
-          with_content(/^\s*report-authentication true$/).\
-          with_content(/^\s*report-data-op foo true$/).\
-          with_content(/^\s*log {$/).\
-          with_content(/^\s*report-violation true$/).\
-          with_content(/^\s*xdr {$/).\
-          with_content(/^\s*enable-xdr true$/).\
-          with_content(/^\s*xdr-namedpipe-path \/tmp\/xdr_pipe$/).\
-          with_content(/^\s*xdr-digestlog-path \/opt\/aerospike\/digestlog 100G$/).\
-          with_content(/^\s*xdr-errorlog-path \/var\/log\/aerospike\/asxdr.log$/).\
-          with_content(/^\s*xdr-pidfile \/var\/run\/aerospike\/asxdr.pid$/).\
-          with_content(/^\s*local-node-port 4000$/).\
-          with_content(/^\s*xdr-info-port 3004$/).\
-          with_content(/^\s*datacenter DC1 {$/).\
-          with_content(/^\s*dc-node-address-port 172.68.17.123 3000$/).\
-          with_content(/^\s*mod-lua {$/).\
-          with_content(/^\s*user-path \/opt\/aerospike\/usr\/udf\/lua$/)
+          with_content(%r{^\s*user as_user$}).\
+          with_content(%r{^\s*group as_group$}).\
+          with_content(%r{^\s*paxos-single-replica-limit 2$}).\
+          with_content(%r{^\s*pidfile /run/aerospike/asd.pid$}).\
+          with_content(%r{^\s*service-threads 8$}).\
+          with_content(%r{^\s*scan-thread 6$}).\
+          with_content(%r{^\s*transaction-queues 2$}).\
+          with_content(%r{^\s*transaction-threads-per-queue 4$}).\
+          with_content(%r{^\s*proto-fd-max 20000$}).\
+          with_content(%r{^\s*file /var/log/aerospike/aerospike.log \{$}).\
+          with_content(%r{^\s*context any info$}).\
+          with_content(%r{^\s*file /var/log/aerospike/aerospike.debug \{$}).\
+          with_content(%r{^\s*context cluster debug$}).\
+          with_content(%r{^\s*context migrate debug$}).\
+          with_content(%r{^\s*access-address 192.168.1.100$}).\
+          with_content(%r{^\s*address any$}).\
+          with_content(%r{^\s*port 4000$}).\
+          with_content(%r{^\s*mode mesh$}).\
+          with_content(%r{^\s*address 192.168.1.100$}).\
+          with_content(%r{^\s*mesh-seed-address-port 192.168.1.100 3002$}).\
+          with_content(%r{^\s*mesh-seed-address-port 192.168.1.101 3002$}).\
+          with_content(%r{^\s*mesh-seed-address-port 192.168.1.102 3002$}).\
+          with_content(%r{^\s*port 3002$}).\
+          with_content(%r{^\s*interval 150$}).\
+          with_content(%r{^\s*timeout 10$}).\
+          with_content(%r{^\s*namespace bar \{$}).\
+          with_content(%r{^\s*namespace foo \{$}).\
+          with_content(%r{^\s*replication-factor 2$}).\
+          with_content(%r{^\s*memory-size 10G$}).\
+          with_content(%r{^\s*default-ttl 30d$}).\
+          with_content(%r{^\s*storage-engine memory$}).\
+          with_content(%r{^\s*storage-engine device \{$}).\
+          with_content(%r{^\s*file /data/aerospike/foo.dat$}).\
+          with_content(%r{^\s*filesize 10G$}).\
+          with_content(%r{^\s*data-in-memory false$}).\
+          with_content(%r{^\s*cluster \{$}).\
+          with_content(%r{^\s*mode dynamic$}).\
+          with_content(%r{^\s*self-group-id 201$}).\
+          with_content(%r{^\s*security \{$}).\
+          with_content(%r{^\s*privilege-refresh-period 500$}).\
+          with_content(%r{^\s*syslog \{$}).\
+          with_content(%r{^\s*local 0$}).\
+          with_content(%r{^\s*report-user-admin true$}).\
+          with_content(%r{^\s*report-authentication true$}).\
+          with_content(%r{^\s*report-data-op foo true$}).\
+          with_content(%r{^\s*log \{$}).\
+          with_content(%r{^\s*report-violation true$}).\
+          with_content(%r{^\s*xdr \{$}).\
+          with_content(%r{^\s*enable-xdr true$}).\
+          with_content(%r{^\s*xdr-namedpipe-path /tmp/xdr_pipe$}).\
+          with_content(%r{^\s*xdr-digestlog-path /opt/aerospike/digestlog 100G$}).\
+          with_content(%r{^\s*xdr-errorlog-path /var/log/aerospike/asxdr.log$}).\
+          with_content(%r{^\s*xdr-pidfile /var/run/aerospike/asxdr.pid$}).\
+          with_content(%r{^\s*local-node-port 4000$}).\
+          with_content(%r{^\s*xdr-info-port 3004$}).\
+          with_content(%r{^\s*datacenter DC1 \{$}).\
+          with_content(%r{^\s*dc-node-address-port 172.68.17.123 3000$}).\
+          with_content(%r{^\s*mod-lua \{$}).\
+          with_content(%r{^\s*user-path /opt/aerospike/usr/udf/lua$})
       end
 
       # Tests related to the aerospike::service class
@@ -389,19 +389,19 @@ describe 'aerospike' do
       it { is_expected.to compile.with_all_deps }
       it do
         is_expected.to create_file('/etc/aerospike/aerospike.conf').\
-          with_content(/^\s*namespace foo {$/).\
-          with_content(/^\s*enable-xdr true$/).\
-          with_content(/^\s*xdr-remote-datacenter DC1$/).\
-          with_content(/^\s*xdr-remote-datacenter DC2$/).\
-          with_content(/^\s*xdr-digestlog-path \/opt\/aerospike\/digestlog 100G$/).\
-          with_content(/^\s*xdr-errorlog-path \/var\/log\/aerospike\/asxdr.log$/).\
-          with_content(/^\s*xdr-pidfile \/var\/run\/aerospike\/asxdr.pid$/).\
-          with_content(/^\s*local-node-port 4000$/).\
-          with_content(/^\s*xdr-info-port 3004$/).\
-          with_content(/^\s*datacenter DC1 {$/).\
-          with_content(/^\s*dc-node-address-port 172.1.1.100 3000$/).\
-          with_content(/^\s*datacenter DC2 {$/).\
-          with_content(/^\s*dc-node-address-port 172.2.2.100 3000$/)
+          with_content(%r{^\s*namespace foo \{$}).\
+          with_content(%r{^\s*enable-xdr true$}).\
+          with_content(%r{^\s*xdr-remote-datacenter DC1$}).\
+          with_content(%r{^\s*xdr-remote-datacenter DC2$}).\
+          with_content(%r{^\s*xdr-digestlog-path /opt/aerospike/digestlog 100G$}).\
+          with_content(%r{^\s*xdr-errorlog-path /var/log/aerospike/asxdr.log$}).\
+          with_content(%r{^\s*xdr-pidfile /var/run/aerospike/asxdr.pid$}).\
+          with_content(%r{^\s*local-node-port 4000$}).\
+          with_content(%r{^\s*xdr-info-port 3004$}).\
+          with_content(%r{^\s*datacenter DC1 \{$}).\
+          with_content(%r{^\s*dc-node-address-port 172.1.1.100 3000$}).\
+          with_content(%r{^\s*datacenter DC2 \{$}).\
+          with_content(%r{^\s*dc-node-address-port 172.2.2.100 3000$})
       end
     end
 

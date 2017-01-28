@@ -15,9 +15,9 @@ describe 'aerospike::xdr_credentials_file' do
         with_mode('0600').\
         with_owner('root').\
         with_group('root').\
-        with_content(/^credentials$/).\
-        with_content(/username xdr_user_DC1$/).\
-        with_content(/password xdr_password_DC1$/).\
+        with_content(%r{^credentials$}).\
+        with_content(%r{username xdr_user_DC1$}).\
+        with_content(%r{password xdr_password_DC1$}).\
         without_notify
     end
   end
