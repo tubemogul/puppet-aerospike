@@ -40,8 +40,7 @@ class aerospike::install {
     extract_path => $aerospike::download_dir,
     creates      => $dest,
     cleanup      => $aerospike::remove_archive,
-  } ~>
-  exec { 'aerospike-install-server':
+  } ~> exec { 'aerospike-install-server':
     command     => "${dest}/asinstall ${_asinstall_params}",
     cwd         => $dest,
     refreshonly => true,
