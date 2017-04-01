@@ -1111,12 +1111,12 @@ namespace foo {
 }
 ```
 
-##Limitations
+## Limitations
 
 This module has only been tested against Ubuntu 14.04, but it should work with
 the Debian and the Red Hat family.
 
-##Development
+## Development
 
 See the [CONTRIBUTING.md](https://github.com/tubemogul/puppet-aerospike/blob/master/CONTRIBUTING.md) file.
 
