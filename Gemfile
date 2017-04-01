@@ -2,6 +2,7 @@ source ENV['GEM_SOURCE'] || 'https://rubygems.org'
 
 group :test do
   gem 'metadata-json-lint'
+  gem 'parallel_tests', '< 2.10.0' if RUBY_VERSION < '2.0.0'
   gem 'puppet', ENV['PUPPET_VERSION'] || '~> 4.0'
   gem 'puppetlabs_spec_helper'
   gem 'rake'
