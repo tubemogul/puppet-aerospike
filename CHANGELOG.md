@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   the last one compatible with this module for now. Changing the `.fixtures.yml`
   to reflect that.
 
+### Fixed
+- Fixed some documentation cosmetics in the README
+- Fixed some rubocop complains
+- Fixed some gems dependencies with ruby 1.9
+
 ## [1.3.0] - 2017-01-30
 ### Added
 - New parameter: `asinstall_params`: sets extra parameters to the installer
