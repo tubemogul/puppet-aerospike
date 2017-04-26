@@ -126,12 +126,9 @@ class aerospike (
   include '::aerospike::service'
 
   if $manage_service and $restart_on_config_change {
-    Class['aerospike::config'] ~>
-    Class['aerospike::service']
+    Class['aerospike::config'] ~> Class['aerospike::service']
   }
 
-  Class['aerospike::install'] ->
-  Class['aerospike::config'] ->
-  Class['aerospike::service']
+  Class['aerospike::install'] -> Class['aerospike::config'] -> Class['aerospike::service']
 
 }
