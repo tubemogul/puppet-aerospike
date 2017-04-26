@@ -41,9 +41,17 @@ network {
   }
 
   heartbeat {
-<% scope.lookupvar('aerospike::config_net_hb').sort.each do |k,v| -%>
-    <%= k %> <%= v %>
-<% end -%>
+<% scope.lookupvar('aerospike::config_net_hb').sort.each do |hb_k,hb_v|
+  if hb_v.is_a?(Array)
+    if hb_k == 'mesh-seed-address-port'
+      hb_v.sort.each do |prop| -%>
+    <%= hb_k %> <%= prop %>
+<%    end
+    end
+  else -%>
+    <%= hb_k %> <%= hb_v %>
+<% end
+  end -%>
   }
 }
 
