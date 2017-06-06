@@ -656,7 +656,7 @@ Default: `root`
 
 UID of the OS user to be used by the service.
 
-Default: `0`
+Default: `undef` (number is assigned by the OS)
 
 ##### `system_group`
 
@@ -670,7 +670,7 @@ Default: `root`
 
 GID of the OS user to be used by the service.
 
-Default: `0`
+Default: `undef` (number is assigned by the OS)
 
 ##### `manage_service`
 
@@ -679,6 +679,12 @@ If set to false, the `service_status` parameter will be ignored but the service
 will still be configured.
 
 Default: `true`
+
+##### `service_provider`
+
+String defining mechanism for managing service. See [Puppet docs](https://docs.puppet.com/puppet/latest/types/service.html#service-attribute-provider) for supported values.
+
+Default: `undef` (Puppet will determine appropriate value)
 
 ##### `restart_on_config_change`
 
@@ -764,6 +770,29 @@ logging {
 
 For more information about logging management in aerospike, check:
 http://www.aerospike.com/docs/operations/configure/log/
+
+
+##### `config_mod_lua`
+
+Configuration parameters for `mod-lua` context.
+
+This parameter is a hash which is empty by default.
+
+```
+{
+  'config_mod_lua' => {
+    'user-path' => '/opt/aerospike/usr/udf/lua'
+  },
+}
+```
+
+Which generates the following configuration for the `mod-lua` context:
+
+```
+mod-lua {
+    user-path /opt/aerospike/usr/udf/lua
+}
+```
 
 ##### `config_net_svc`
 
@@ -949,7 +978,7 @@ http://www.aerospike.com/docs/operations/configure/cross-datacenter/
 ##### `config_xdr_credentials`
 
 Configuration parameters to define the xdr credentials (user/password) for the remote cluster in the
-separate secured file when security enabled. 
+separate secured file when security enabled.
 
 This parameter is a hash table with:
   * the property name as key
@@ -1082,12 +1111,12 @@ namespace foo {
 }
 ```
 
-##Limitations
+## Limitations
 
 This module has only been tested against Ubuntu 14.04, but it should work with
-the Debian family and the Red Hat servers.
+the Debian and the Red Hat family.
 
-##Development
+## Development
 
 See the [CONTRIBUTING.md](https://github.com/tubemogul/puppet-aerospike/blob/master/CONTRIBUTING.md) file.
 

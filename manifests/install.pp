@@ -10,7 +10,7 @@
 #
 class aerospike::install {
 
-  include 'archive'
+  include '::archive'
 
   # #######################################
   # Installation of aerospike server
@@ -21,6 +21,16 @@ class aerospike::install {
   }
   $dest = "${aerospike::download_dir}/aerospike-server-${aerospike::edition}-${aerospike::version}-${aerospike::target_os_tag}"
 
+  if $aerospike::asinstall_params {
+    $_asinstall_params = $aerospike::asinstall_params
+  } else {
+    $_asinstall_params = $::osfamily ? {
+      'Debian' => '--force-confold -i',
+      'RedHat' => '-Uvh',
+      default  => '',
+    }
+  }
+
   archive { "${dest}.tgz":
     ensure       => present,
     source       => $src,
@@ -30,12 +40,12 @@ class aerospike::install {
     extract_path => $aerospike::download_dir,
     creates      => $dest,
     cleanup      => $aerospike::remove_archive,
-  } ~>
-  exec { 'aerospike-install-server':
-    command     => "${dest}/asinstall",
+  } ~> exec { 'aerospike-install-server':
+    command     => "${dest}/asinstall ${_asinstall_params}",
     cwd         => $dest,
     refreshonly => true,
   }
+
 
   # #######################################
   # Defining the system user and group the service will be configured on
@@ -66,24 +76,27 @@ class aerospike::install {
       'Debian': {
         $amc_pkg_extension = '.all.x86_64.deb'
         $amc_pkg_provider = 'dpkg'
+        $amc_pkg_name="aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
         $amc_extract = false
-        $amc_target_archive = "${aerospike::amc_download_dir}/aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
+        $amc_target_archive = "${aerospike::amc_download_dir}/${amc_pkg_name}"
         $amc_dest = $amc_target_archive
         $bcrypt_os_packages  = ['build-essential', 'python-dev', 'libffi-dev']
       }
       'RedHat': {
-        $amc_pkg_extension = '-el5.x86_64.rpm'
+        $amc_pkg_extension = "-${aerospike::target_os_tag}.x86_64.rpm"
         $amc_pkg_provider = 'rpm'
+        $amc_pkg_name="aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
         $amc_extract = false
-        $amc_target_archive = "${aerospike::amc_download_dir}/aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
+        $amc_target_archive = "${aerospike::amc_download_dir}/${amc_pkg_name}"
         $amc_dest = $amc_target_archive
         $bcrypt_os_packages  = ['gcc', 'libffi-devel', 'python-devel']
       }
       default : {
         $amc_pkg_extension ='.tar.gz'
+        $amc_pkg_name="aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
         $amc_pkg_provider = undef
         $amc_extract = true
-        $amc_target_archive = "${aerospike::amc_download_dir}/aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
+        $amc_target_archive = "${aerospike::amc_download_dir}/${amc_pkg_name}"
         $amc_dest = "${aerospike::amc_download_dir}/aerospike-amc-${aerospike::edition}-${aerospike::amc_version}"
         $bcrypt_os_packages  = ['gcc', 'libffi-devel', 'python-devel']
       }

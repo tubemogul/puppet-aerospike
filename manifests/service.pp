@@ -8,18 +8,20 @@ class aerospike::service {
   if $aerospike::manage_service {
     service {'aerospike':
       ensure     => $aerospike::service_status,
+      enable     => $aerospike::service_enable,
       hasrestart => true,
       hasstatus  => true,
-      provider   => 'init',
+      provider   => $aerospike::service_provider,
     }
   }
 
   if $aerospike::amc_manage_service {
     service {'amc':
       ensure     => $aerospike::amc_service_status,
+      enable     => $aerospike::amc_service_enable,
       hasrestart => true,
       hasstatus  => true,
-      provider   => 'init',
+      provider   => $aerospike::service_provider,
     }
   }
 }
