@@ -125,7 +125,7 @@ class aerospike (
   include '::aerospike::config'
   include '::aerospike::service'
 
-  if $manage_service and $restart_on_config_change {
+  if $restart_on_config_change and ($manage_service or $amc_manage_service) {
     Class['aerospike::config'] ~> Class['aerospike::service']
   }
 
