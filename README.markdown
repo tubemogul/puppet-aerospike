@@ -18,9 +18,12 @@
     * [Defining namespaces](#defining-namespaces)
     * [Installing the Aerospike Management Console](#installing-the-aerospike-management-console)
     * [Configuring a rack-aware cluster](#configuring-a-rack-aware-cluster)
+    * [Defining credentials for XDR](#defining-credentials-for-xdr)
+    * [Full real-life multi-datacenter replication example for XDR with security enabled](#full-real-life-multi-datacenter-replication-example-for-xdr-with-security-enabled)
+    * [Not restarting the service](#not-restarting-the-service)
 5. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
     * [Public classes](#public-classes)
-    * [Private classes](#private-classes)
+    * [Private classes and defines](#private-classes-and-defines)
     * [Parameters](#parameters)
 5. [Limitations - OS compatibility, etc.](#limitations)
 6. [Development - Guide for contributing to the module](#development)
@@ -32,7 +35,7 @@ It can optionally install the Aerospike Management Console (aka. amc) and manage
 
 It has been tested and used in production with:
 
- * Puppet 3.8 on Ubuntu 14.04 (trusty) with aerospike 3.7.2 and 3.7.3 community
+ * Puppet 3.8 on Ubuntu 14.04 (trusty) with aerospike 3.8.4 community
    and enterprise versions with and without the installation of the amc 3.6.6.
    The master branch of puppet-archive was used including the PR 117 and 121.
 
@@ -55,7 +58,7 @@ What is this module capable of doing?
 
 Files managed by the module:
 
-* /etc/aerospike/aerospike.conf
+* `/etc/aerospike/aerospike.conf`
 
 ### Setup Requirements
 
@@ -68,12 +71,19 @@ The module requires:
 
 The module can be used out of the box directly, it just requires puppet-community's archive module and puppetlab's stdlib to be in your modulepath.
 
-To install (with all the dependencies):
+To install, just use the following, puppet software will take care of puling the
+dependencies:
+
+```shell
+puppet module install TubeMogul/aerospike
+```
+
+If you are working on a version not coming from the forge but directly from the
+github repo, here is how you can install the dependencies of the module:
 
 ```shell
 puppet module install puppetlabs/stdlib
 puppet module install puppet/archive
-puppet module install TubeMogul/aerospike
 ```
 
 ## Usage
@@ -84,15 +94,15 @@ copy/paste of a full configuration when you have both - yes, I'm lazy ;-) ).
 
 ### Using the aerospike enterprise version
 
-In this example you will setup an installation of an aerospike server 3.7.3
+In this example you will setup an installation of an aerospike server 3.8.3
 enterprise version using the default namespace:
 
 ```puppet
 class { 'aerospike':
-  'version'       => '3.7.3',
-  'edition'       => 'enterprise',
-  'download_user' => 'myuser',
-  'download_pass' => 'mypassword',
+  version       => '3.8.3',
+  edition       => 'enterprise',
+  download_user => 'myuser',
+  download_pass => 'mypassword',
 }
 ```
 
@@ -101,7 +111,7 @@ in hiera (of course, you use eyaml and encrypt your password with it! ;-) ):
 
 ```yaml
 ---
-aerospike::version: 3.7.3
+aerospike::version: 3.8.3
 aerospike::edition: enterprise
 aerospike::download_user: myuser
 aerospike::download_pass: mypassword
@@ -118,7 +128,7 @@ ssd devices) containing a hahaha set protected from eviction:
 
 ```puppet
 class { 'aerospike':
-  $config_ns = {
+  config_ns => {
     'bar'                  => {
       'replication-factor' => 2,
       'memory-size'        => '10G',
@@ -178,8 +188,8 @@ To install and the management console and have the service managed by puppet, us
 
 ```puppet
 class { 'aerospike':
-  'amc_install'        => true,
-  'amc_manage_service' => true,
+  amc_install        => true,
+  amc_manage_service => true,
 }
 ```
 
@@ -257,17 +267,317 @@ aerospike::config_cluster:
   self-group-id: 666
 ```
 
+### Defining credentials for XDR
+
+To define credentials of remote cluster(s) for XDR in a separate secured file
+'/etc/aerospike/security-credentials\_$DC\_name.txt', use:
+
+```puppet
+class { 'aerospike':
+  config_xdr_credentials => {"DC1"=>{"username"=>"xdr_user_DC1", "password"=>"xdr_password_DC1"}},
+}
+```
+
+Or, using hiera, you just include 'aerospike' in your puppet profile and in hiera:
+
+```yaml
+---
+aerospike::config_xdr_credentials:
+  DC1:
+    username: 'xdr_user_DC1'
+    password: 'xdr_password_DC1'
+```
+
+### Full real-life multi-datacenter replication example for XDR with security enabled
+
+Note that this example requires you to run at least aerospike 3.8.1.
+
+To define a XDR replication over a namespace to multiple datacenters, you can
+work based on the following example (note that it is based on a real-life prod example.
+Of course, IP and other security-sensitive informations here are fake or removed):
+
+```puppet
+class { 'aerospike':
+  version        => '3.8.4',
+  config_service => {
+    'paxos-single-replica-limit'    => 1,
+    'pidfile'                       => '/var/run/aerospike/asd.pid',
+    'service-threads'               => 4,
+    'transaction-queues'            => 4,
+    'transaction-threads-per-queue' => 4,
+    'proto-fd-max'                  => 15000,
+    'paxos-protocol'                => 'v4',
+    'paxos-recovery-policy'         => 'auto-reset-master',
+    'migrate-threads'               => 2,
+  },
+  config_logging => {
+    '/var/logs/aerospike.log' => [ 'any info' ],
+  },
+  config_net_hb => {
+    'mode'                              => 'mesh',
+    'address'                           => 'any',
+    'port'                              => 3002,
+    'mesh-seed-address-port 10.0.0.101' => 3002,
+    'mesh-seed-address-port 10.0.0.102' => 3002,
+    'mesh-seed-address-port 10.0.0.103' => 3002,
+    'mesh-seed-address-port 10.0.0.104' => 3002,
+    'mesh-seed-address-port 10.0.0.105' => 3002,
+    'mesh-seed-address-port 10.0.0.106' => 3002,
+    'mesh-seed-address-port 10.0.0.107' => 3002,
+    'mesh-seed-address-port 10.0.0.108' => 3002,
+    'mesh-seed-address-port 10.0.0.109' => 3002,
+    'mesh-seed-address-port 10.0.0.110' => 3002,
+    'mesh-seed-address-port 10.0.0.111' => 3002,
+    'mesh-seed-address-port 10.0.0.112' => 3002,
+    'mesh-seed-address-port 10.0.0.113' => 3002,
+    'mesh-seed-address-port 10.0.0.114' => 3002,
+    'mesh-seed-address-port 10.0.0.115' => 3002,
+    'mesh-seed-address-port 10.0.0.116' => 3002,
+    'mesh-seed-address-port 10.0.0.117' => 3002,
+    'mesh-seed-address-port 10.0.0.118' => 3002,
+    'mesh-seed-address-port 10.0.0.119' => 3002,
+    'mesh-seed-address-port 10.0.0.120' => 3002,
+    'interval'                          => 150,
+    'timeout'                           => 20,
+  },
+  config_cluster => {
+    'mode'          => 'dynamic',
+    'self-group-id' => 666,
+  },
+  config_ns => {
+    'replicatedns'          => {
+    'enable-xdr'            => 'true',
+    'xdr-remote-datacenter' => [ 'DC1', 'DC2' ],
+    'replication-factor'    => 2,
+    'memory-size'           => '100G',
+    'default-ttl'           => '30D',
+    'high-water-disk-pct'   => 55,
+    'high-water-memory-pct' => 65,
+    'storage-engine device' => [
+      'device /dev/xvdb /dev/xvdf',
+      'device /dev/xvdc /dev/xvdg',
+      'data-in-memory false',
+      'write-block-size 1024K',
+      'scheduler-mode noop',
+      'defrag-lwm-pct 55',
+      ],
+    },
+  },
+  config_sec => {
+    'enable-security' => 'true',
+  },
+  config_xdr => {
+    'enable-xdr' => 'true',
+    'xdr-digestlog-path' => '/mnt/aerospike-digestlog 100G',
+    'xdr-ship-bins' => 'true',
+    'datacenter DC1' => [
+      'dc-node-address-port 192.168.1.100 3000',
+      'dc-node-address-port 192.168.1.101 3000',
+      'dc-node-address-port 192.168.1.102 3000',
+      'dc-node-address-port 192.168.1.103 3000',
+      'dc-node-address-port 192.168.1.104 3000',
+      'dc-node-address-port 192.168.1.105 3000',
+      'dc-node-address-port 192.168.1.106 3000',
+      'dc-node-address-port 192.168.1.107 3000',
+      'dc-use-alternate-services true',
+      'dc-security-config-file /etc/aerospike/security-credentials_DC1.txt'
+    ],
+    'datacenter DC2' => [
+      'dc-node-address-port 193.168.2.100 3000',
+      'dc-node-address-port 192.168.2.102 3000',
+      'dc-node-address-port 192.168.2.103 3000',
+      'dc-node-address-port 192.168.2.104 3000',
+      'dc-node-address-port 192.168.2.105 3000',
+      'dc-node-address-port 192.168.2.106 3000',
+      'dc-node-address-port 192.168.2.107 3000',
+      'dc-node-address-port 192.168.2.108 3000',
+      'dc-use-alternate-services true',
+      'dc-security-config-file /etc/aerospike/security-credentials_DC2.txt'
+    ],
+  },
+  config_xdr_credentials => {
+    'DC1' => {
+      'username' => 'svc_xdr_dc1',
+      'password' => 'password_encrypted_with_eyaml_goes_there',
+    },
+    'DC2' => {
+      'username' => 'svc_xdr_dc2',
+      'password' => 'password_encrypted_with_eyaml_goes_there',
+    },
+  }
+}
+```
+
+Or, using hiera, you just include 'aerospike' in your puppet profile and in hiera:
+
+```yaml
+---
+aerospike::version: 3.8.4
+aerospike::config_service:
+  paxos-single-replica-limit: 1
+  pidfile: /var/run/aerospike/asd.pid
+  service-threads: 4
+  transaction-queues: 4
+  transaction-threads-per-queue: 4
+  proto-fd-max: 15000
+  paxos-protocol: v4
+  paxos-recovery-policy: auto-reset-master
+  migrate-threads: 2
+aerospike::config_logging:
+  '/var/logs/aerospike.log': [ 'any info' ]
+aerospike::config_net_hb:
+  mode: mesh
+  address: any
+  port: 3002
+  'mesh-seed-address-port 10.0.0.101': 3002
+  'mesh-seed-address-port 10.0.0.102': 3002
+  'mesh-seed-address-port 10.0.0.103': 3002
+  'mesh-seed-address-port 10.0.0.104': 3002
+  'mesh-seed-address-port 10.0.0.105': 3002
+  'mesh-seed-address-port 10.0.0.106': 3002
+  'mesh-seed-address-port 10.0.0.107': 3002
+  'mesh-seed-address-port 10.0.0.108': 3002
+  'mesh-seed-address-port 10.0.0.109': 3002
+  'mesh-seed-address-port 10.0.0.110': 3002
+  'mesh-seed-address-port 10.0.0.111': 3002
+  'mesh-seed-address-port 10.0.0.112': 3002
+  'mesh-seed-address-port 10.0.0.113': 3002
+  'mesh-seed-address-port 10.0.0.114': 3002
+  'mesh-seed-address-port 10.0.0.115': 3002
+  'mesh-seed-address-port 10.0.0.116': 3002
+  'mesh-seed-address-port 10.0.0.117': 3002
+  'mesh-seed-address-port 10.0.0.118': 3002
+  'mesh-seed-address-port 10.0.0.119': 3002
+  'mesh-seed-address-port 10.0.0.120': 3002
+  interval: 150
+  timeout: 20
+aerospike::config_cluster:
+  mode: dynamic
+  self-group-id: 666
+aerospike::config_ns:
+  replicatedns:
+    enable-xdr: true
+    xdr-remote-datacenter:
+      - DC1
+      - DC2
+    replication-factor: 2
+    memory-size: 100G
+    default-ttl: 30D
+    high-water-disk-pct: 55
+    high-water-memory-pct: 65
+    storage-engine device:
+      - 'device /dev/xvdb /dev/xvdf'
+      - 'device /dev/xvdc /dev/xvdg'
+      - 'data-in-memory false'
+      - 'write-block-size 1024K'
+      - 'scheduler-mode noop'
+      - 'defrag-lwm-pct 55'
+aerospike::config_sec:
+  enable-security: true
+aerospike::config_xdr:
+  enable-xdr: true
+  xdr-digestlog-path: '/mnt/aerospike-digestlog 100G'
+  xdr-ship-bins: true
+  'datacenter DC1':
+    - 'dc-node-address-port 192.168.1.100 3000'
+    - 'dc-node-address-port 192.168.1.101 3000'
+    - 'dc-node-address-port 192.168.1.102 3000'
+    - 'dc-node-address-port 192.168.1.103 3000'
+    - 'dc-node-address-port 192.168.1.104 3000'
+    - 'dc-node-address-port 192.168.1.105 3000'
+    - 'dc-node-address-port 192.168.1.106 3000'
+    - 'dc-node-address-port 192.168.1.107 3000'
+    - 'dc-use-alternate-services true'
+    - 'dc-security-config-file /etc/aerospike/security-credentials_DC1.txt'
+  'datacenter DC2':
+    - 'dc-node-address-port 192.168.2.100 3000'
+    - 'dc-node-address-port 192.168.2.102 3000'
+    - 'dc-node-address-port 192.168.2.103 3000'
+    - 'dc-node-address-port 192.168.2.104 3000'
+    - 'dc-node-address-port 192.168.2.105 3000'
+    - 'dc-node-address-port 192.168.2.106 3000'
+    - 'dc-node-address-port 192.168.2.107 3000'
+    - 'dc-node-address-port 192.168.2.108 3000'
+    - 'dc-use-alternate-services true'
+    - 'dc-security-config-file /etc/aerospike/security-credentials_DC2.txt'
+aerospike::config_xdr_credentials:
+  DC1:
+    username: svc_xdr_dc1
+    password: password_encrypted_with_eyaml_goes_there
+  DC2:
+    username: svc_xdr_dc2
+    password: password_encrypted_with_eyaml_goes_there
+```
+
+Note that if you are only doing xdr to 1 datacenter, you can use a string
+instead of an array for the `xdr-remote-datacenter` parameter:
+
+```yaml
+    xdr-remote-datacenter: DC1
+```
+
+### Not restarting the service
+
+There are 2 solutions for that. The most common usage for that would be the 1st
+solution proposed.
+
+#### Not restarting when a config is changed
+
+To still having puppet start or stop the service as you defined but not restart
+the service when a configuration is changed, set the `restart_on_config_change` parameter to `false`.
+
+This is the method you will want to choose if you are changing dynamic
+parameters with the `asinfo` or `asadm` command-line tools and that you change
+the config file just to avoid problems on next restart.
+
+Note that this won't restart the service when credentials are modified either.
+
+```puppet
+class { 'aerospike':
+  restart_on_config_change => false,
+}
+```
+
+Or via hiera:
+
+```yaml
+aerospike:
+  restart_on_config_change: false
+```
+
+#### Not managing the service with puppet at all
+
+To do that you define the `manage_service` parameter to `false` but keep in mind
+that if there's a problem and the service goes down, puppet won't restart it.
+
+Puppet won't restart the service if there's a config change either.
+
+```puppet
+class { 'aerospike':
+  manage_service => false,
+}
+```
+
+Or via hiera:
+
+```yaml
+aerospike:
+  manage_service: false
+```
+
+
 ## Reference
 
 ### Public classes
 
  * [`aerospike`](#class-aerospike): Installs and configures Aerospike server and the management console.
 
-### Private classes
+### Private classes and defines
 
  * `aerospike::install`: Installs Aerospike server and the management console.
  * `aerospike::config`: Configures Aerospike server and the management console.
  * `aerospike::service`: Manages the Aerospike server and the management console services.
+ * `aerospike::xdr_credentials_file`: manages the credential files for xdr.
 
 
 ### Parameters
@@ -278,7 +588,7 @@ aerospike::config_cluster:
 
 Version of the aerospike database engine to install.
 
-Default: `3.7.2`
+Default: `3.8.3`
 
 ##### `download_dir`
 
@@ -346,7 +656,7 @@ Default: `root`
 
 UID of the OS user to be used by the service.
 
-Default: `0`
+Default: `undef` (number is assigned by the OS)
 
 ##### `system_group`
 
@@ -360,7 +670,33 @@ Default: `root`
 
 GID of the OS user to be used by the service.
 
-Default: `0`
+Default: `undef` (number is assigned by the OS)
+
+##### `manage_service`
+
+Boolean indicating whether you want to manage the service status or not.
+If set to false, the `service_status` parameter will be ignored but the service
+will still be configured.
+
+Default: `true`
+
+##### `service_provider`
+
+String defining mechanism for managing service. See [Puppet docs](https://docs.puppet.com/puppet/latest/types/service.html#service-attribute-provider) for supported values.
+
+Default: `undef` (Puppet will determine appropriate value)
+
+##### `restart_on_config_change`
+
+Boolean indicating whether or not you want to restart the aerospike service
+whenever there's a change in the configuration files or credential files.
+
+Note that it is different from `manage_service` because the service will still
+be managed by puppet if you set it to `false` (as long as `manage_service` is set
+to `true`), so if the service goes down, puppet will still take care of
+restarting it.
+
+Default: `true`
 
 ##### `config_service`
 
@@ -434,6 +770,29 @@ logging {
 
 For more information about logging management in aerospike, check:
 http://www.aerospike.com/docs/operations/configure/log/
+
+
+##### `config_mod_lua`
+
+Configuration parameters for `mod-lua` context.
+
+This parameter is a hash which is empty by default.
+
+```
+{
+  'config_mod_lua' => {
+    'user-path' => '/opt/aerospike/usr/udf/lua'
+  },
+}
+```
+
+Which generates the following configuration for the `mod-lua` context:
+
+```
+mod-lua {
+    user-path /opt/aerospike/usr/udf/lua
+}
+```
 
 ##### `config_net_svc`
 
@@ -616,6 +975,25 @@ Default: `{}`
 For more informations about configuring xdr, check:
 http://www.aerospike.com/docs/operations/configure/cross-datacenter/
 
+##### `config_xdr_credentials`
+
+Configuration parameters to define the xdr credentials (user/password) for the remote cluster in the
+separate secured file when security enabled.
+
+This parameter is a hash table with:
+  * the property name as key
+  * the value of the property as value.
+
+**Note:** When defining a subcontext in it for a property as you do for the
+defining the name of datacenter subcontext, set the subcontext name as the key and the
+value will be a hash table with the property name (username/password) as key and the value
+of the property as value.
+
+Default: `{}`
+
+For more informations about configuring xdr when security enabled, check:
+http://www.aerospike.com/docs/operations/configure/cross-datacenter/
+
 ##### `service_status`
 
 Controls the status of the service ("ensure" attribute in the puppet service
@@ -648,7 +1026,7 @@ package to be downloaded from somewhere else than the aerospike website.
 
 **Note:** It is mandatory to keep the name of the target file set to the
 same pattern as the original name when using this custom url aka:
-aerospike-amc-${aerospike::edition}-${amc_version}${amc_pkg_extension}
+`aerospike-amc-${aerospike::edition}-${amc_version}${amc_pkg_extension}`
 
 The default url is:
 
@@ -733,64 +1111,12 @@ namespace foo {
 }
 ```
 
-Example of an aerospike installation with 2 namespaces and a replication to 2
-datacenters and a configuration of a security context:
-
-```
-class { 'aerospike':
-  $config_ns = {
-    'bar'                  => {
-      'replication-factor' => 2,
-      'memory-size'        => '10G',
-      'default-ttl'        => '30d',
-      'storage-engine'     => 'memory',
-    },
-    'foo'                     => {
-      'replication-factor'    => 2,
-      'memory-size'           => '1G',
-      'storage-engine device' => [
-        'file /data/aerospike/foo.dat',
-        'filesize 10G',
-        'data-in-memory false',
-      ]
-    },
-  },
-  $config_sec                  => {
-    'privilege-refresh-period' => 500,
-    'syslog'                   => [
-      'local 0',
-      'report-user-admin true',
-      'report-authentication true',
-      'report-data-op foo true',
-    ],
-    'log'                   => [
-      'report-violation true',
-    ],
-  },
-  $config_xdr            => {
-    'enable-xdr'         => true,
-    'xdr-namedpipe-path' => '/tmp/xdr_pipe',
-    'xdr-digestlog-path' => '/opt/aerospike/digestlog 100G',
-    'xdr-errorlog-path'  => '/var/log/aerospike/asxdr.log',
-    'xdr-pidfile'        => '/var/run/aerospike/asxdr.pid',
-    'local-node-port'    => 3000,
-    'xdr-info-port'      => 3004,
-    'datacenter DC1'     => [
-      'dc-node-address-port 172.68.17.123 3000',
-    ],
-    'datacenter DC2'     => [
-      'dc-node-address-port 172.68.39.123 3000',
-    ],
-  },
-}
-```
-
-##Limitations
+## Limitations
 
 This module has only been tested against Ubuntu 14.04, but it should work with
-the Debian family and the Red Hat servers.
+the Debian and the Red Hat family.
 
-##Development
+## Development
 
 See the [CONTRIBUTING.md](https://github.com/tubemogul/puppet-aerospike/blob/master/CONTRIBUTING.md) file.
 

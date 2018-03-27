@@ -8,19 +8,22 @@
 # https://github.com/tubemogul/puppet-aerospike/blob/master/README.markdown
 #
 class aerospike (
-  $version        = '3.7.2',
-  $download_dir   = '/usr/local/src',
-  $download_url   = undef,
-  $remove_archive = false,
-  $edition        = 'community',
-  $target_os_tag  = 'ubuntu14.04',
-  $download_user  = undef,
-  $download_pass  = undef,
-  $system_user    = 'root',
-  $system_uid     = 0,
-  $system_group   = 'root',
-  $system_gid     = 0,
-  $config_service = {
+  $version                  = '3.8.4',
+  $download_dir             = '/usr/local/src',
+  $download_url             = undef,
+  $remove_archive           = false,
+  $edition                  = 'community',
+  $target_os_tag            = $::aerospike::params::target_os_tag,
+  $download_user            = undef,
+  $download_pass            = undef,
+  $asinstall_params         = undef,
+  $system_user              = 'root',
+  $system_uid               = undef,
+  $system_group             = 'root',
+  $system_gid               = undef,
+  $manage_service           = true,
+  $restart_on_config_change = true,
+  $config_service           = {
     'paxos-single-replica-limit'    => 1,
     'pidfile'                       => '/var/run/aerospike/asd.pid',
     'service-threads'               => 4,
@@ -31,6 +34,7 @@ class aerospike (
   $config_logging = {
     '/var/log/aerospike/aerospike.log' => [ 'any info', ],
   },
+  $config_mod_lua = {},
   $config_net_svc = {
     'address' => 'any',
     'port'    => 3000,
@@ -59,20 +63,24 @@ class aerospike (
         'file /data/aerospike/data2.dat',
         'filesize 10G',
         'data-in-memory false',
-      ]
+      ],
     },
   },
-  $config_cluster     = {},
-  $config_sec         = {},
-  $config_xdr         = {},
-  $service_status     = 'running',
-  $amc_install        = false,
-  $amc_version        = '3.6.6',
-  $amc_download_dir   = '/usr/local/src',
-  $amc_download_url   = undef,
-  $amc_manage_service = false,
-  $amc_service_status = 'running',
-) {
+  $config_cluster         = {},
+  $config_sec             = {},
+  $config_xdr             = {},
+  $config_xdr_credentials = {},
+  $service_status         = 'running',
+  $service_enable         = true,
+  $service_provider       = undef,
+  $amc_install            = false,
+  $amc_version            = '3.6.6',
+  $amc_download_dir       = '/usr/local/src',
+  $amc_download_url       = undef,
+  $amc_manage_service     = false,
+  $amc_service_status     = 'running',
+  $amc_service_enable     = true,
+) inherits ::aerospike::params {
 
   validate_string(
     $version,
@@ -87,13 +95,18 @@ class aerospike (
     $amc_service_status,
   )
   validate_bool(
-    $remove_archive,
     $amc_install,
     $amc_manage_service,
+    $amc_service_enable,
+    $manage_service,
+    $remove_archive,
+    $restart_on_config_change,
+    $service_enable,
   )
   validate_hash(
     $config_service,
     $config_logging,
+    $config_mod_lua,
     $config_net_svc,
     $config_net_fab,
     $config_net_inf,
@@ -102,11 +115,20 @@ class aerospike (
     $config_cluster,
     $config_sec,
     $config_xdr,
+    $config_xdr_credentials,
   )
-  if ! is_integer($system_uid) { fail("invalid ${system_uid} provided") }
-  if ! is_integer($system_gid) { fail("invalid ${system_gid} provided") }
+  if $service_provider { validate_string($service_provider) }
+  if $system_uid and ! is_integer($system_uid) { fail("invalid ${system_uid} provided") }
+  if $system_gid and ! is_integer($system_gid) { fail("invalid ${system_gid} provided") }
 
-  class {'aerospike::install': } ->
-  class {'aerospike::config': } ~>
-  class {'aerospike::service': }
+  include '::aerospike::install'
+  include '::aerospike::config'
+  include '::aerospike::service'
+
+  if $manage_service and $restart_on_config_change {
+    Class['aerospike::config'] ~> Class['aerospike::service']
+  }
+
+  Class['aerospike::install'] -> Class['aerospike::config'] -> Class['aerospike::service']
+
 }

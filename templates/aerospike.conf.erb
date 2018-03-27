@@ -41,9 +41,17 @@ network {
   }
 
   heartbeat {
-<% scope.lookupvar('aerospike::config_net_hb').sort.each do |k,v| -%>
-    <%= k %> <%= v %>
-<% end -%>
+<% scope.lookupvar('aerospike::config_net_hb').sort.each do |hb_k,hb_v|
+  if hb_v.is_a?(Array)
+    if hb_k == 'mesh-seed-address-port'
+      hb_v.sort.each do |prop| -%>
+    <%= hb_k %> <%= prop %>
+<%    end
+    end
+  else -%>
+    <%= hb_k %> <%= hb_v %>
+<% end
+  end -%>
   }
 }
 
@@ -59,12 +67,18 @@ cluster {
 # namespace context: <%= ns %>
 namespace <%= ns %> {
 <%  cfg.sort.each do |item_k,item_v|
-      if item_v.is_a?(Array) -%>
+  if item_v.is_a?(Array)
+    if item_k == 'xdr-remote-datacenter'
+       item_v.sort.each do |prop| -%>
+  <%= item_k %> <%= prop %>
+<%     end
+    else -%>
   <%= item_k %> {
-<%       item_v.sort.each do |prop| -%>
+<%     item_v.sort.each do |prop| -%>
     <%= prop %>
-<%       end -%>
+<%     end -%>
   }
+<%   end -%>
 <%     else -%>
   <%= item_k %> <%= item_v %>
 <%     end
@@ -104,3 +118,10 @@ xdr {
 }
 <% end -%>
 
+<% unless scope.lookupvar('aerospike::config_mod_lua').empty? -%>
+mod-lua {
+<% scope.lookupvar('aerospike::config_mod_lua').sort.each do |item_k,item_v| -%>
+  <%= item_k %> <%= item_v %>
+<% end -%>
+}
+<% end -%>
