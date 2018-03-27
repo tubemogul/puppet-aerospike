@@ -23,9 +23,17 @@ logging {
 # network context definition
 network {
   service {
-<% scope.lookupvar('aerospike::config_net_svc').sort.each do |k,v| -%>
+<% scope.lookupvar('aerospike::config_net_svc').sort.each do |k,v|
+  if v.is_a?(Array)
+    if k == 'access-address'
+      v.sort.each do |v_ip| -%>
+    <%= k %> <%= v_ip %>
+<%    end
+    end
+  else -%>
     <%= k %> <%= v %>
-<% end -%>
+<% end
+  end -%>
   }
 
   fabric {
