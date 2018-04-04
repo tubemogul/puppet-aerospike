@@ -5,10 +5,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [1.3.1] - 2018-04-04
 ### Changed
 - Puppet archive version 1.3.0 is the last one compatible with puppet 3.x and
   the last one compatible with this module for now. Changing the `.fixtures.yml`
   to reflect that.
+- Add support for heartbeat unicast
+- Add support for define multiple `access-address`
 
 ### Fixed
 - Fixed some documentation cosmetics in the README
