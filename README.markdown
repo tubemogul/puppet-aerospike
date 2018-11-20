@@ -35,8 +35,8 @@ It can optionally install the Aerospike Management Console (aka. amc) and manage
 
 It has been tested and used in production with:
 
- * Puppet 3.8 on Ubuntu 14.04 (trusty) with aerospike 3.8.4 community
-   and enterprise versions with and without the installation of the amc 3.6.6.
+ * Puppet 5.5 on Ubuntu 18.04 (bionic) with aerospike 4.3.1.5 community
+   and enterprise versions with and without the installation of the amc 4.0.19.
    The master branch of puppet-archive was used including the PR 117 and 121.
 
 The spec tests pass against puppet >= 3.5 including the strict variables and future parser.
@@ -94,12 +94,12 @@ copy/paste of a full configuration when you have both - yes, I'm lazy ;-) ).
 
 ### Using the aerospike enterprise version
 
-In this example you will setup an installation of an aerospike server 3.8.3
+In this example you will setup an installation of an aerospike server 3.8.4
 enterprise version using the default namespace:
 
 ```puppet
 class { 'aerospike':
-  version       => '3.8.3',
+  version       => '3.8.4',
   edition       => 'enterprise',
   download_user => 'myuser',
   download_pass => 'mypassword',
@@ -111,7 +111,7 @@ in hiera (of course, you use eyaml and encrypt your password with it! ;-) ):
 
 ```yaml
 ---
-aerospike::version: 3.8.3
+aerospike::version: 3.8.4
 aerospike::edition: enterprise
 aerospike::download_user: myuser
 aerospike::download_pass: mypassword
@@ -584,11 +584,17 @@ aerospike:
 
 #### Class aerospike
 
+##### `asinstall`
+
+If set to false, this won't download and install the aerospike server package. Useful if need install only AMC.
+
+Default: `true`
+
 ##### `version`
 
 Version of the aerospike database engine to install.
 
-Default: `3.8.3`
+Default: `3.8.4`
 
 ##### `download_dir`
 
@@ -625,7 +631,7 @@ Default: `community`
 
 Tag used in the target file name to identify the distribution package to use.
 
-Default: `ubuntu14.04`
+Default: `ubuntu18.04`
 
 ##### `download_user`
 
@@ -1011,7 +1017,7 @@ Default: `false`
 
 Sets which version of the amc package to install.
 
-Default: `3.6.6`
+Default: `4.0.19`
 
 ##### `amc_download_dir`
 
@@ -1113,7 +1119,7 @@ namespace foo {
 
 ## Limitations
 
-This module has only been tested against Ubuntu 14.04, but it should work with
+This module has only been tested against Ubuntu 14.04 - 18.04, but it should work with
 the Debian and the Red Hat family.
 
 ## Development
