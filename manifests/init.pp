@@ -81,6 +81,9 @@ class aerospike (
   $amc_manage_service     = false,
   $amc_service_status     = 'running',
   $amc_service_enable     = true,
+  $tools_version          = undef,
+  $tools_download_url     = undef,
+  $tools_download_dir     = '/usr/local/src',
 ) inherits ::aerospike::params {
 
   validate_string(
@@ -94,6 +97,7 @@ class aerospike (
     $amc_version,
     $amc_download_dir,
     $amc_service_status,
+    $tools_download_dir,
   )
   validate_bool(
     $asinstall,
@@ -122,6 +126,7 @@ class aerospike (
   if $service_provider { validate_string($service_provider) }
   if $system_uid and ! is_integer($system_uid) { fail("invalid ${system_uid} provided") }
   if $system_gid and ! is_integer($system_gid) { fail("invalid ${system_gid} provided") }
+  if $tools_version { validate_string($tools_version) }
 
   include '::aerospike::service'
 

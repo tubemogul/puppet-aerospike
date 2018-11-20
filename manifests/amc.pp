@@ -30,7 +30,7 @@ class aerospike::amc {
       $amc_target_archive = "${aerospike::amc_download_dir}/${amc_pkg_name}"
       $amc_dest = $amc_target_archive
     }
-    default : {
+    default: {
       $amc_pkg_extension ='-linux.tar.gz'
       $amc_pkg_name="aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
       $amc_pkg_provider = undef

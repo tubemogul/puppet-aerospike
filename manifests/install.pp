@@ -64,4 +64,30 @@ class aerospike::install {
       gid    => $aerospike::system_gid,
     }
   )
+
+  # #######################################
+  # Installation of aerospike tools
+  # #######################################
+  if $aerospike::tools_version {
+    $src_tools = $aerospike::tools_download_url ? {
+      undef   => "https://www.aerospike.com/artifacts/aerospike-tools/${aerospike::tools_version}/aerospike-tools-${aerospike::tools_version}-${aerospike::target_os_tag}.tgz",
+      default => $aerospike::tools_download_url,
+    }
+    $dest_tools = "${aerospike::tools_download_dir}/aerospike-tools-${aerospike::tools_version}-${aerospike::target_os_tag}"
+
+    archive { "${dest_tools}.tgz":
+      ensure       => present,
+      source       => $src_tools,
+      username     => $aerospike::download_user,
+      password     => $aerospike::download_pass,
+      extract      => true,
+      extract_path => $aerospike::tools_download_dir,
+      creates      => $dest_tools,
+      cleanup      => $aerospike::remove_archive,
+    } ~> exec { 'aerospike-install-tools':
+      command     => "${dest_tools}/asinstall",
+      cwd         => $dest_tools,
+      refreshonly => true,
+    }
+  }
 }
