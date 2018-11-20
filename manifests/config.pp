@@ -11,7 +11,6 @@ class aerospike::config {
     mode    => '0644',
     owner   => $aerospike::system_user,
     group   => $aerospike::system_group,
-#    require => Class['aerospike::install'],
   }
 
   # If 'aerospike::config_xdr_credentials' defined - create file(s) with credentials for XDR

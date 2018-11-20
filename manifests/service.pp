@@ -5,7 +5,7 @@
 #
 class aerospike::service {
 
-  if $aerospike::asinstall and  $aerospike::manage_service {
+  if $aerospike::asinstall and $aerospike::manage_service {
     service {'aerospike':
       ensure     => $aerospike::service_status,
       enable     => $aerospike::service_enable,

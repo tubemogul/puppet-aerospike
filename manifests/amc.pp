@@ -23,7 +23,7 @@ class aerospike::amc {
       $amc_dest = $amc_target_archive
     }
     'RedHat': {
-      $amc_pkg_extension = ".x86_64.rpm"
+      $amc_pkg_extension = '.x86_64.rpm'
       $amc_pkg_provider = 'rpm'
       $amc_pkg_name="aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
       $amc_extract = false

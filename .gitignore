@@ -1,6 +1,8 @@
 pkg/
-Gemfile.lock
-Gemfile.local
+gemfiles/Gemfile.lock
+gemfiles/Gemfile.local
+gemfiles/Gemfile.ruby1.9.3.lock
+gemfiles/Gemfile.ruby1.9.3.local
 vendor/
 .vendor/
 spec/fixtures/manifests/
