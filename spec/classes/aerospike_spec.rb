@@ -503,6 +503,60 @@ describe 'aerospike' do
     it { is_expected.to contain_exec('aerospike-install-server').with_command("#{target_dir}/asinstall --force-confnew -i") }
   end
 
+
+  shared_examples 'tools-related' do |osfamily, dist, majrelease, expected_tag|
+    # #####################################################################
+    # Tests related to aerospike tools
+    # #####################################################################
+    describe "aerospike class with all tools-related parameters on #{osfamily}" do
+      let(:params) do
+        {
+          tools_version: '3.16.0',
+          tools_download_url: "https://my_fileserver.example.com/aerospike-tools/aerospike-tools-3.16.0-#{expected_tag}.tgz",
+          tools_download_dir: "/tmp",
+        }
+      end
+      let(:facts) do
+        {
+          osfamily: osfamily,
+          operatingsystem: dist,
+          operatingsystemmajrelease: majrelease
+        }
+      end
+
+      let(:target_dir) { "/tmp/aerospike-tools-3.16.0-#{expected_tag}" }
+
+      it { is_expected.to compile.with_all_deps }
+
+      it do
+        is_expected.to contain_archive("/tmp/aerospike-tools-3.16.0-#{expected_tag}.tgz").\
+          with_ensure('present').\
+          with_source("https://my_fileserver.example.com/aerospike-tools/aerospike-tools-3.16.0-#{expected_tag}.tgz").\
+          with_extract(true).\
+          with_extract_path('/tmp').\
+          with_creates(target_dir).\
+          with_cleanup(false).\
+          that_notifies('Exec[aerospike-install-tools]')
+      end
+
+      case osfamily
+      when 'Debian'
+        it { is_expected.to contain_exec('aerospike-install-tools').with_command("#{target_dir}/asinstall") }
+      when 'RedHat'
+        it { is_expected.to contain_exec('aerospike-install-tools').with_command("#{target_dir}/asinstall") }
+      end
+    end
+  end
+
+  context 'supported operating systems - tools-related tests' do
+    # execute shared tests on various distributions
+    # parameters :                  osfamily, dist, majrelease
+    it_behaves_like 'tools-related', 'Debian', 'Debian', '8', 'debian8'
+    it_behaves_like 'tools-related', 'Debian', 'Ubuntu', '18.04', 'ubuntu18.04'
+    it_behaves_like 'tools-related', 'RedHat', 'RedHat', '7', 'el7'
+  end
+
+
   shared_examples 'amc-related' do |osfamily, dist, majrelease|
     # Here we enforce only the amc_version as this test would be useless if we
     # change the defautl version.
