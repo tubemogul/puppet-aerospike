@@ -8,6 +8,7 @@
 # https://github.com/tubemogul/puppet-aerospike/blob/master/README.markdown
 #
 class aerospike (
+  $asinstall                = true,
   $version                  = '3.8.4',
   $download_dir             = '/usr/local/src',
   $download_url             = undef,
@@ -74,12 +75,15 @@ class aerospike (
   $service_enable         = true,
   $service_provider       = undef,
   $amc_install            = false,
-  $amc_version            = '3.6.6',
+  $amc_version            = '4.0.19',
   $amc_download_dir       = '/usr/local/src',
   $amc_download_url       = undef,
   $amc_manage_service     = false,
   $amc_service_status     = 'running',
   $amc_service_enable     = true,
+  $tools_version          = undef,
+  $tools_download_url     = undef,
+  $tools_download_dir     = '/usr/local/src',
 ) inherits ::aerospike::params {
 
   validate_string(
@@ -93,8 +97,10 @@ class aerospike (
     $amc_version,
     $amc_download_dir,
     $amc_service_status,
+    $tools_download_dir,
   )
   validate_bool(
+    $asinstall,
     $amc_install,
     $amc_manage_service,
     $amc_service_enable,
@@ -120,15 +126,23 @@ class aerospike (
   if $service_provider { validate_string($service_provider) }
   if $system_uid and ! is_integer($system_uid) { fail("invalid ${system_uid} provided") }
   if $system_gid and ! is_integer($system_gid) { fail("invalid ${system_gid} provided") }
+  if $tools_version { validate_string($tools_version) }
 
-  include '::aerospike::install'
-  include '::aerospike::config'
   include '::aerospike::service'
 
-  if $manage_service and $restart_on_config_change {
-    Class['aerospike::config'] ~> Class['aerospike::service']
+  if $asinstall {
+    include '::aerospike::install'
+    include '::aerospike::config'
+
+    Class['aerospike::install'] -> Class['aerospike::config'] -> Class['aerospike::service']
+
+    if $manage_service and $restart_on_config_change {
+      Class['aerospike::config'] ~> Class['aerospike::service']
+    }
   }
 
-  Class['aerospike::install'] -> Class['aerospike::config'] -> Class['aerospike::service']
-
+  if $amc_install {
+    include '::aerospike::amc'
+    Class['aerospike::amc'] -> Class['aerospike::service']
+  }
 }

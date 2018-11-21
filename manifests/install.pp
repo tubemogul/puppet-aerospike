@@ -66,84 +66,28 @@ class aerospike::install {
   )
 
   # #######################################
-  # Installation of the management console
-  # Only if asked for it.
+  # Installation of aerospike tools
   # #######################################
-  if $aerospike::amc_install {
-
-    # On the amc, some elements are changing depending on the os familly
-    case $::osfamily {
-      'Debian': {
-        $amc_pkg_extension = '.all.x86_64.deb'
-        $amc_pkg_provider = 'dpkg'
-        $amc_pkg_name="aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
-        $amc_extract = false
-        $amc_target_archive = "${aerospike::amc_download_dir}/${amc_pkg_name}"
-        $amc_dest = $amc_target_archive
-        $bcrypt_os_packages  = ['build-essential', 'python-dev', 'libffi-dev']
-      }
-      'RedHat': {
-        $amc_pkg_extension = "-${aerospike::target_os_tag}.x86_64.rpm"
-        $amc_pkg_provider = 'rpm'
-        $amc_pkg_name="aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
-        $amc_extract = false
-        $amc_target_archive = "${aerospike::amc_download_dir}/${amc_pkg_name}"
-        $amc_dest = $amc_target_archive
-        $bcrypt_os_packages  = ['gcc', 'libffi-devel', 'python-devel']
-      }
-      default : {
-        $amc_pkg_extension ='.tar.gz'
-        $amc_pkg_name="aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}"
-        $amc_pkg_provider = undef
-        $amc_extract = true
-        $amc_target_archive = "${aerospike::amc_download_dir}/${amc_pkg_name}"
-        $amc_dest = "${aerospike::amc_download_dir}/aerospike-amc-${aerospike::edition}-${aerospike::amc_version}"
-        $bcrypt_os_packages  = ['gcc', 'libffi-devel', 'python-devel']
-      }
+  if $aerospike::tools_version {
+    $src_tools = $aerospike::tools_download_url ? {
+      undef   => "https://www.aerospike.com/artifacts/aerospike-tools/${aerospike::tools_version}/aerospike-tools-${aerospike::tools_version}-${aerospike::target_os_tag}.tgz",
+      default => $aerospike::tools_download_url,
     }
+    $dest_tools = "${aerospike::tools_download_dir}/aerospike-tools-${aerospike::tools_version}-${aerospike::target_os_tag}"
 
-
-    $amc_src = $aerospike::amc_download_url ? {
-      undef => "http://www.aerospike.com/artifacts/aerospike-amc-${aerospike::edition}/${aerospike::amc_version}/aerospike-amc-${aerospike::edition}-${aerospike::amc_version}${amc_pkg_extension}",
-      default => $aerospike::amc_download_url,
-    }
-
-    $os_packages  = ['python-pip', 'ansible', 'python-paramiko']
-    $pip_packages = ['markupsafe', 'ecdsa', 'pycrypto']
-    ensure_packages($os_packages, { ensure => installed, } )
-    ensure_packages($pip_packages, {
-      ensure   => installed,
-      provider => 'pip',
-      require  => [ Package['python-pip'], ],
-    })
-    ensure_packages($bcrypt_os_packages, { ensure => installed, } )
-    ensure_packages('bcrypt', {
-      ensure   => installed,
-      provider => 'pip',
-      require  => [ Package[$bcrypt_os_packages], Package['python-pip'], ],
-    })
-    archive { $amc_target_archive:
+    archive { "${dest_tools}.tgz":
       ensure       => present,
-      source       => $amc_src,
+      source       => $src_tools,
       username     => $aerospike::download_user,
       password     => $aerospike::download_pass,
-      extract      => $amc_extract,
-      extract_path => $aerospike::amc_download_dir,
-      creates      => $amc_dest,
+      extract      => true,
+      extract_path => $aerospike::tools_download_dir,
+      creates      => $dest_tools,
       cleanup      => $aerospike::remove_archive,
-
-    }
-
-    # For now only the packages that are not tarballs are installed.
-    if $amc_pkg_provider != undef {
-      ensure_packages("aerospike-amc-${aerospike::edition}", {
-        ensure   => latest,
-        provider => $amc_pkg_provider,
-        source   => $amc_dest,
-        require  => [ Archive[$amc_target_archive], ],
-      })
-    } else {
-      fail('Installation of the amc via tarball not yet supported by this module.')
+    } ~> exec { 'aerospike-install-tools':
+      command     => "${dest_tools}/asinstall",
+      cwd         => $dest_tools,
+      refreshonly => true,
     }
   }
 }

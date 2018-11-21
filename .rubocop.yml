@@ -2,7 +2,7 @@ require: rubocop-rspec
 AllCops:
   Include:
     - ./**/*.rb
-    - '**/Gemfile'
+    - '**/gemfiles/Gemfile'
     - '**/Guardfile'
     - '**/Rakefile'
   Exclude:
@@ -27,9 +27,6 @@ Lint/EnsureReturn:
   Enabled: True
 
 Lint/HandleExceptions:
-  Enabled: True
-
-Lint/LiteralInCondition:
   Enabled: True
 
 Lint/ShadowingOuterLocalVariable:
@@ -197,9 +194,6 @@ Style/TrailingBlankLines:
 Style/SpaceInsideBlockBraces:
   Enabled: True
 
-Style/SpaceInsideBrackets:
-  Enabled: True
-
 Style/SpaceInsideHashLiteralBraces:
   Enabled: True
 
@@ -322,7 +316,10 @@ Style/StringLiterals:
 Style/TrailingCommaInArguments:
   Enabled: True
 
-Style/TrailingCommaInLiteral:
+Style/TrailingCommaInArrayLiteral:
+  Enabled: True
+
+Style/TrailingCommaInHashLiteral:
   Enabled: True
 
 Style/GlobalVars:
@@ -418,7 +415,7 @@ Style/NumericLiterals:
 Style/OneLineConditional:
   Enabled: True
 
-Style/OpMethod:
+Naming/BinaryOperatorParameterName:
   Enabled: True
 
 Style/ParenthesesAroundCondition:

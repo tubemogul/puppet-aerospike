@@ -9,8 +9,6 @@ class aerospike::params {
   # Select appropriate package for supported distribution.
   # See http://www.aerospike.com/download/
   case $::osfamily {
-    # TODO: at some point we should replace flat facts by hierarchical
-    # e.g. $::os[release][major] instead of $::operatingsystemmajrelease
     'Debian': {
       case $::operatingsystem {
         'Debian': {
@@ -25,7 +23,8 @@ class aerospike::params {
             '12.04': { $target_os_tag = 'ubuntu12.04' }
             '14.04': { $target_os_tag = 'ubuntu14.04' }
             '16.04': { $target_os_tag = 'ubuntu16.04' }
-            default: { $target_os_tag = 'ubuntu16.04' }
+            '18.04': { $target_os_tag = 'ubuntu18.04' }
+            default: { $target_os_tag = 'ubuntu18.04' }
           }
         }
         default: { $target_os_tag = 'debian8' }

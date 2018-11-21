@@ -48,8 +48,8 @@ describe 'aerospike' do
     describe "aerospike class with custom url on #{osfamily}" do
       let(:params) do
         {
-          version: '3.8.3',
-          download_url: "http://my_fileserver.example.com/aerospike/aerospike-server-enterprise-3.8.3-#{expected_tag}.tgz",
+          version: '3.8.4',
+          download_url: "http://my_fileserver.example.com/aerospike/aerospike-server-enterprise-3.8.4-#{expected_tag}.tgz",
           edition: 'enterprise'
         }
       end
@@ -60,14 +60,14 @@ describe 'aerospike' do
           operatingsystemmajrelease: majrelease
         }
       end
-      let(:target_dir) { "/usr/local/src/aerospike-server-enterprise-3.8.3-#{expected_tag}" }
+      let(:target_dir) { "/usr/local/src/aerospike-server-enterprise-3.8.4-#{expected_tag}" }
 
       it { is_expected.to compile.with_all_deps }
 
       it do
-        is_expected.to contain_archive("/usr/local/src/aerospike-server-enterprise-3.8.3-#{expected_tag}.tgz").\
+        is_expected.to contain_archive("/usr/local/src/aerospike-server-enterprise-3.8.4-#{expected_tag}.tgz").\
           with_ensure('present').\
-          with_source("http://my_fileserver.example.com/aerospike/aerospike-server-enterprise-3.8.3-#{expected_tag}.tgz").\
+          with_source("http://my_fileserver.example.com/aerospike/aerospike-server-enterprise-3.8.4-#{expected_tag}.tgz").\
           with_extract(true).\
           with_extract_path('/usr/local/src').\
           with_creates(target_dir).\
@@ -89,7 +89,7 @@ describe 'aerospike' do
     describe "aerospike class with all parameters (except custom url) on #{osfamily}, #{majrelease}" do
       let(:params) do
         {
-          version: '3.8.3',
+          version: '3.8.4',
           download_dir: '/tmp',
           remove_archive:   true,
           edition:          'enterprise',
@@ -195,7 +195,7 @@ describe 'aerospike' do
         }
       end
 
-      let(:target_dir) { "/tmp/aerospike-server-enterprise-3.8.3-#{expected_tag}" }
+      let(:target_dir) { "/tmp/aerospike-server-enterprise-3.8.4-#{expected_tag}" }
 
       it { is_expected.to compile.with_all_deps }
 
@@ -207,9 +207,9 @@ describe 'aerospike' do
 
       # Tests related to the aerospike::install class
       it do
-        is_expected.to contain_archive("/tmp/aerospike-server-enterprise-3.8.3-#{expected_tag}.tgz").\
+        is_expected.to contain_archive("/tmp/aerospike-server-enterprise-3.8.4-#{expected_tag}.tgz").\
           with_ensure('present').\
-          with_source("http://www.aerospike.com/artifacts/aerospike-server-enterprise/3.8.3/aerospike-server-enterprise-3.8.3-#{expected_tag}.tgz").\
+          with_source("http://www.aerospike.com/artifacts/aerospike-server-enterprise/3.8.4/aerospike-server-enterprise-3.8.4-#{expected_tag}.tgz").\
           with_username('dummy_user').\
           with_password('dummy_password').\
           with_extract(true).\
@@ -435,7 +435,7 @@ describe 'aerospike' do
     # execute shared tests on various distributions
     # parameters :                  osfamily, dist, majrelease, expected_tag
     it_behaves_like 'supported_os', 'Debian', 'Debian', '8', 'debian8'
-    it_behaves_like 'supported_os', 'Debian', 'Ubuntu', '16.04', 'ubuntu16.04'
+    it_behaves_like 'supported_os', 'Debian', 'Ubuntu', '18.04', 'ubuntu18.04'
     it_behaves_like 'supported_os', 'RedHat', 'RedHat', '7', 'el7'
   end
 
@@ -448,7 +448,7 @@ describe 'aerospike' do
       {
         osfamily: 'Debian',
         operatingsystem: 'Ubuntu',
-        operatingsystemmajrelease: '16.04'
+        operatingsystemmajrelease: '18.04'
       }
     end
 
@@ -471,7 +471,7 @@ describe 'aerospike' do
       {
         osfamily: 'Debian',
         operatingsystem: 'Ubuntu',
-        operatingsystemmajrelease: '16.04'
+        operatingsystemmajrelease: '18.04'
       }
     end
 
@@ -503,13 +503,67 @@ describe 'aerospike' do
     it { is_expected.to contain_exec('aerospike-install-server').with_command("#{target_dir}/asinstall --force-confnew -i") }
   end
 
+
+  shared_examples 'tools-related' do |osfamily, dist, majrelease, expected_tag|
+    # #####################################################################
+    # Tests related to aerospike tools
+    # #####################################################################
+    describe "aerospike class with all tools-related parameters on #{osfamily}" do
+      let(:params) do
+        {
+          tools_version: '3.16.0',
+          tools_download_url: "https://my_fileserver.example.com/aerospike-tools/aerospike-tools-3.16.0-#{expected_tag}.tgz",
+          tools_download_dir: "/tmp",
+        }
+      end
+      let(:facts) do
+        {
+          osfamily: osfamily,
+          operatingsystem: dist,
+          operatingsystemmajrelease: majrelease
+        }
+      end
+
+      let(:target_dir) { "/tmp/aerospike-tools-3.16.0-#{expected_tag}" }
+
+      it { is_expected.to compile.with_all_deps }
+
+      it do
+        is_expected.to contain_archive("/tmp/aerospike-tools-3.16.0-#{expected_tag}.tgz").\
+          with_ensure('present').\
+          with_source("https://my_fileserver.example.com/aerospike-tools/aerospike-tools-3.16.0-#{expected_tag}.tgz").\
+          with_extract(true).\
+          with_extract_path('/tmp').\
+          with_creates(target_dir).\
+          with_cleanup(false).\
+          that_notifies('Exec[aerospike-install-tools]')
+      end
+
+      case osfamily
+      when 'Debian'
+        it { is_expected.to contain_exec('aerospike-install-tools').with_command("#{target_dir}/asinstall") }
+      when 'RedHat'
+        it { is_expected.to contain_exec('aerospike-install-tools').with_command("#{target_dir}/asinstall") }
+      end
+    end
+  end
+
+  context 'supported operating systems - tools-related tests' do
+    # execute shared tests on various distributions
+    # parameters :                  osfamily, dist, majrelease
+    it_behaves_like 'tools-related', 'Debian', 'Debian', '8', 'debian8'
+    it_behaves_like 'tools-related', 'Debian', 'Ubuntu', '18.04', 'ubuntu18.04'
+    it_behaves_like 'tools-related', 'RedHat', 'RedHat', '7', 'el7'
+  end
+
+
   shared_examples 'amc-related' do |osfamily, dist, majrelease|
     # Here we enforce only the amc_version as this test would be useless if we
     # change the defautl version.
     describe "aerospike class without any parameters on #{osfamily}" do
       let(:params) do
         {
-          amc_version: '3.6.6',
+          amc_version: '4.0.19',
           service_provider: 'init'
         }
       end
@@ -523,8 +577,8 @@ describe 'aerospike' do
 
       it { is_expected.to compile.with_all_deps }
 
-      # Tests related to the aerospike::install class
-      it { is_expected.not_to contain_archive('/usr/local/src/aerospike-amc-community-3.6.6.all.x86_64.deb') }
+      # Tests related to the aerospike::amc class
+      it { is_expected.not_to contain_archive('/usr/local/src/aerospike-amc-community-4.0.19_amd64.deb') }
       it { is_expected.not_to contain_package('aerospike-amc-community') }
 
       # Tests related to the aerospike::config class
@@ -538,9 +592,9 @@ describe 'aerospike' do
       let(:params) do
         {
           amc_install: true,
-          amc_version: '3.6.5',
+          amc_version: '4.0.19',
           amc_download_dir: '/tmp',
-          amc_download_url: 'http://my_fileserver.example.com/aerospike/aerospike-amc-community-3.6.5.all.x86_64.deb',
+          amc_download_url: 'http://my_fileserver.example.com/aerospike/aerospike-amc-community-4.0.19_amd64.deb',
           amc_manage_service: true,
           amc_service_status: 'stopped'
         }
@@ -553,27 +607,17 @@ describe 'aerospike' do
         }
       end
 
-      # Tests related to the aerospike::install class
-      it { is_expected.to contain_package('python-pip').with_ensure('installed').that_comes_before('Package[bcrypt]') }
-      it { is_expected.to contain_package('ansible').with_ensure('installed') }
-      it { is_expected.to contain_package('python-paramiko').with_ensure('installed') }
+      # Tests related to the aerospike base class content
+      it { is_expected.to contain_class('aerospike::amc').that_comes_before('Class[aerospike::service]') }
 
-      it { is_expected.to contain_package('markupsafe').with_ensure('installed').with_provider('pip') }
-      it { is_expected.to contain_package('ecdsa').with_ensure('installed').with_provider('pip') }
-      it { is_expected.to contain_package('pycrypto').with_ensure('installed').with_provider('pip') }
-
-      it { is_expected.to contain_package('build-essential').with_ensure('installed').that_comes_before('Package[bcrypt]') }
-      it { is_expected.to contain_package('python-dev').with_ensure('installed').that_comes_before('Package[bcrypt]') }
-      it { is_expected.to contain_package('libffi-dev').with_ensure('installed').that_comes_before('Package[bcrypt]') }
-      it { is_expected.to contain_package('bcrypt').with_ensure('installed').with_provider('pip') }
-
+      # Tests related to the aerospike::amc class
       it do
-        is_expected.to contain_archive('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb').\
+        is_expected.to contain_archive('/tmp/aerospike-amc-community-4.0.19_amd64.deb').\
           with_ensure('present').\
-          with_source('http://my_fileserver.example.com/aerospike/aerospike-amc-community-3.6.5.all.x86_64.deb').\
+          with_source('http://my_fileserver.example.com/aerospike/aerospike-amc-community-4.0.19_amd64.deb').\
           with_extract(false).\
           with_extract_path('/tmp').\
-          with_creates('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb').\
+          with_creates('/tmp/aerospike-amc-community-4.0.19_amd64.deb').\
           with_cleanup(false)
       end
 
@@ -581,7 +625,7 @@ describe 'aerospike' do
         is_expected.to contain_package('aerospike-amc-community').\
           with_ensure('latest').\
           with_provider('dpkg').\
-          with_source('/tmp/aerospike-amc-community-3.6.5.all.x86_64.deb')
+          with_source('/tmp/aerospike-amc-community-4.0.19_amd64.deb')
       end
 
       # Tests related to the aerospike::config class
@@ -601,6 +645,6 @@ describe 'aerospike' do
     # execute shared tests on various distributions
     # parameters :                  osfamily, dist, majrelease
     it_behaves_like 'amc-related', 'Debian', 'Debian', '8'
-    it_behaves_like 'amc-related', 'Debian', 'Ubuntu', '16.04'
+    it_behaves_like 'amc-related', 'Debian', 'Ubuntu', '18.04'
   end
 end

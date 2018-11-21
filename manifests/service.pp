@@ -5,7 +5,7 @@
 #
 class aerospike::service {
 
-  if $aerospike::manage_service {
+  if $aerospike::asinstall and $aerospike::manage_service {
     service {'aerospike':
       ensure     => $aerospike::service_status,
       enable     => $aerospike::service_enable,
@@ -15,7 +15,7 @@ class aerospike::service {
     }
   }
 
-  if $aerospike::amc_manage_service {
+  if $aerospike::amc_install and $aerospike::amc_manage_service {
     service {'amc':
       ensure     => $aerospike::amc_service_status,
       enable     => $aerospike::amc_service_enable,
@@ -24,4 +24,5 @@ class aerospike::service {
       provider   => $aerospike::service_provider,
     }
   }
+
 }
