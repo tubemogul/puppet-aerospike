@@ -67,23 +67,24 @@ class aerospike (
       ],
     },
   },
-  $config_cluster         = {},
-  $config_sec             = {},
-  $config_xdr             = {},
-  $config_xdr_credentials = {},
-  $service_status         = 'running',
-  $service_enable         = true,
-  $service_provider       = undef,
-  $amc_install            = false,
-  $amc_version            = '4.0.19',
-  $amc_download_dir       = '/usr/local/src',
-  $amc_download_url       = undef,
-  $amc_manage_service     = false,
-  $amc_service_status     = 'running',
-  $amc_service_enable     = true,
-  $tools_version          = undef,
-  $tools_download_url     = undef,
-  $tools_download_dir     = '/usr/local/src',
+  $config_cluster             = {},
+  $config_sec                 = {},
+  $config_xdr                 = {},
+  $config_xdr_credentials     = {},
+  $service_status             = 'running',
+  $service_enable             = true,
+  $service_provider           = undef,
+  $amc_install                = false,
+  $amc_version                = '4.0.19',
+  $amc_download_dir           = '/usr/local/src',
+  $amc_download_url           = undef,
+  $amc_manage_service         = false,
+  $amc_service_status         = 'running',
+  $amc_service_enable         = true,
+  $tools_version              = undef,
+  $tools_download_url         = undef,
+  $tools_download_dir         = '/usr/local/src',
+  $disable_network_irqbalance = false,
 ) inherits ::aerospike::params {
 
   validate_string(
@@ -108,6 +109,7 @@ class aerospike (
     $remove_archive,
     $restart_on_config_change,
     $service_enable,
+    $disable_network_irqbalance,
   )
   validate_hash(
     $config_service,
@@ -128,6 +130,7 @@ class aerospike (
   if $system_gid and ! is_integer($system_gid) { fail("invalid ${system_gid} provided") }
   if $tools_version { validate_string($tools_version) }
 
+  include '::aerospike::irqbalance'
   include '::aerospike::service'
 
   if $asinstall {
